@@ -1,27 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:podcasts_app/screens/home_tabs/dashboard.dart';
+import 'package:podcasts_app/screens/home_tabs/library.dart';
+import 'package:podcasts_app/screens/home_tabs/settings.dart';
 
-enum TabScreen { HOME, PROFILE }
+enum HomeScreen { DASHBOARD, LIBRARY, SETTINGS }
 
-class HomeProvider with ChangeNotifier {
-  List<Widget> _screens = [];
-
-  Widget get screen => Text("hello"); //_screens[_currentIndex];
-
-  int _currentIndex = 0;
-
-  TabScreen get tab => TabScreen.values[_currentIndex];
-
-  HomeProvider() {
-    _screens = [];
+extension ex on HomeScreen {
+  Widget iconWidget({active = false}) {
+    switch (this) {
+      case HomeScreen.DASHBOARD:
+        return Image.asset(
+          "assets/icons/house.png",
+          scale: 5,
+          color: active ? Colors.black : Colors.black12,
+        );
+      case HomeScreen.LIBRARY:
+        return Image.asset(
+          "assets/icons/menu.png",
+          scale: 5,
+          color: active ? Colors.black : Colors.black12,
+        );
+      case HomeScreen.SETTINGS:
+        return Image.asset(
+          "assets/icons/settings.png",
+          scale: 5,
+          color: active ? Colors.black : Colors.black12,
+        );
+    }
   }
 
-  void switchPage(int index) {
-    _currentIndex = index;
+  Widget get page {
+    switch (this) {
+      case HomeScreen.DASHBOARD:
+        return DashboardPage();
+      case HomeScreen.LIBRARY:
+        return LibraryPage();
+      case HomeScreen.SETTINGS:
+        return SettingsPage();
+    }
+  }
+
+  String get label => this.toString().split(".").last;
+}
+
+class HomeProvider with ChangeNotifier {
+  HomeScreen _currentPage = HomeScreen.values.first;
+
+  Widget get page => _currentPage.page;
+
+  HomeScreen get tab => _currentPage;
+
+  void switchToPage(HomeScreen screen) {
+    _currentPage = screen;
+    notifyListeners();
+  }
+
+  void switchToPageNumber(int index) {
+    _currentPage = HomeScreen.values[index];
     notifyListeners();
   }
 
   void reset() {
-    _currentIndex = 0;
+    _currentPage = HomeScreen.values.first;
     notifyListeners();
   }
 }

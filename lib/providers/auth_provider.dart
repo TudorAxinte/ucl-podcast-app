@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import '../models/app_user.dart';
@@ -26,6 +27,43 @@ class AuthProvider with ChangeNotifier {
     await _auth.signInWithEmailAndPassword(email: email, password: password);
     await init();
     notifyListeners();
+  }
+
+  Future<void> signInGoogle() async {
+    final _googleSignIn = GoogleSignIn(scopes: ['email']);
+    final signInAccount = await _googleSignIn.signIn();
+    if (signInAccount != null) {
+      final GoogleSignInAuthentication googleAuth = await signInAccount.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+      final userCredentials = await _auth.signInWithCredential(credential);
+      if (userCredentials.user != null) {
+        if (userCredentials.user!.email != null) {
+          if (await _isGoogleEmailAlreadyRegistered()) {
+            await init();
+          } else {
+            await _auth.currentUser?.updateDisplayName(signInAccount.displayName ?? '');
+            await _auth.currentUser?.updatePhotoURL(signInAccount.photoUrl ?? '');
+
+            final usersRef = _storage.collection('users');
+            final userId = _auth.currentUser!.uid;
+
+            final Map<String, dynamic> data = {
+              "id": userId,
+              "name": signInAccount.displayName,
+              "email": signInAccount.email,
+              "register_timestamp": DateTime.now().toString()
+            };
+            await usersRef.doc(userId).set(data);
+            await init();
+          }
+        }
+      }
+    } else {
+      throw FirebaseException(plugin: 'Google-Sign-In');
+    }
   }
 
   Future<void> register(String name, String email, String password, {String? referralCode}) async {
@@ -109,5 +147,10 @@ class AuthProvider with ChangeNotifier {
     await _auth.currentUser?.delete();
     _currentUser = null;
     notifyListeners();
+  }
+
+  Future<bool> _isGoogleEmailAlreadyRegistered() async {
+    final list = await _auth.fetchSignInMethodsForEmail(_auth.currentUser!.email!);
+    return list.isEmpty;
   }
 }

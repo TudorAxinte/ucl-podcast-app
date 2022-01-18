@@ -44,7 +44,7 @@ class PodcastApp extends StatelessWidget {
       ],
       child: MaterialApp(
         theme: ThemeData(
-          primaryColor: Color(0xffff4040),
+          primaryColor: Colors.blue,
           accentColor: Color(0xffF0074D),
           fontFamily: "Nunito",
         ),

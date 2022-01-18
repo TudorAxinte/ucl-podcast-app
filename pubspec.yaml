@@ -21,6 +21,9 @@ dependencies:
   firebase_auth: ^3.0.1
   cloud_firestore: ^2.4.0
 
+  # Login
+  google_sign_in: ^5.1.0
+
   # Cache
   hive: ^2.0.4
   hive_flutter: ^1.1.0
@@ -33,6 +36,8 @@ dependencies:
   url_launcher: ^6.0.9
 
   #UI
+  shimmer: ^2.0.0
+  floating_bubbles: ^2.1.0
   pull_to_refresh: ^2.0.0
   after_layout: ^1.1.0
   carousel_slider: ^4.0.0
@@ -68,4 +73,9 @@ flutter:
           weight: 500
         - asset: "assets/fonts/Nunito-Bold.ttf"
           weight: 600
+    - family: Pacifico
+      fonts:
+      - asset: "assets/fonts/Pacifico-Regular.ttf"
+
+
   uses-material-design: true

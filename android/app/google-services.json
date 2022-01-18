@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "659022053490",
+    "project_id": "podcastsapp-3165c",
+    "storage_bucket": "podcastsapp-3165c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:659022053490:android:28e6c4d708848eb3d542eb",
+        "android_client_info": {
+          "package_name": "com.tudoraxinte.podcasts_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "659022053490-kaun2mipki03ce1r11v6lp0gqdegrgff.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCtRlqKTnB-Lj9hZ5k3bDWjPEPWkJnE1tc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "659022053490-kaun2mipki03ce1r11v6lp0gqdegrgff.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "659022053490-a4q0b5bgkufbrmcm6s2nikd7ha25t2gb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.tudoraxinte.podcastsApp"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

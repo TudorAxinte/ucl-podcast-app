@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 
-class CustomTextField extends StatelessWidget{
-
-  final TextEditingController _controller;
+class CustomTextField extends StatelessWidget {
   final String _hint;
+  final TextEditingController _controller;
+  final IconData icon;
   final Function(String)? onChanged;
-  CustomTextField(this._controller, this._hint, {this.onChanged});
+
+  CustomTextField(this._controller, this._hint, {this.onChanged, this.icon = Icons.text_fields_sharp});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10),
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      decoration: BoxDecoration(
+        height: 55,
+        margin: const EdgeInsets.symmetric(vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: Colors.black, width: 2),
@@ -25,20 +27,26 @@ class CustomTextField extends StatelessWidget{
             ),
           ],
         ),
-        child: TextFormField(
-            controller: _controller,
-            cursorColor: Colors.black,
-            keyboardType: TextInputType.emailAddress,
-            textInputAction: TextInputAction.next,
-            onChanged: onChanged,
-            decoration: InputDecoration(
-              hintText: _hint,
-              hintStyle: TextStyle(color: Colors.grey),
-              border: InputBorder.none,
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: Colors.black54),
+            SizedBox(width: 5),
+            Expanded(
+              child: TextFormField(
+                controller: _controller,
+                cursorColor: Colors.black,
+                keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                onChanged: onChanged,
+                decoration: InputDecoration(
+                  hintText: _hint,
+                  hintStyle: TextStyle(color: Colors.grey),
+                  border: InputBorder.none,
+                ),
+                style: TextStyle(color: Colors.black),
+              ),
             ),
-            style: TextStyle(color: Colors.black),
-        ),
-      );
+          ],
+        ));
   }
-
 }

@@ -1,6 +1,5 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home.dart';
@@ -15,11 +14,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> with AfterLayoutMixin<SplashScreen> {
   late final AuthProvider _auth;
   late final NetworkDataProvider _network;
-
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   void afterFirstLayout(BuildContext context) {

@@ -2,10 +2,14 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:podcasts_app/components/custom_textfield.dart';
 import 'package:podcasts_app/util/loading.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../splash_page.dart';
+import 'package:floating_bubbles/floating_bubbles.dart';
+
+import 'home.dart';
 
 enum Screen { ACCOUNT_LOGIN, ACCOUNT_REGISTER, SOCIAL_LOGIN }
 
@@ -21,7 +25,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _scroll = ScrollController();
   final _loading = ValueNotifier(false);
   final _referred = ValueNotifier(false);
   final _referralCode = TextEditingController();
@@ -30,72 +33,103 @@ class _LoginPageState extends State<LoginPage> {
   final _email = TextEditingController();
   final _password = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     return Consumer<AuthProvider>(
       builder: (context, auth, child) {
-        return auth.isUserLoggedIn
-            ? SplashScreen()
-            : Scaffold(
-                backgroundColor: Colors.white,
-                body: Loading(
-                  loading: _loading,
-                  child: Stack(
-                    children: [
-                      Column(
-                        children: [
-                          Flexible(
-                              flex: 3,
-                              child: Transform(
-                                transform: Matrix4.translationValues(
-                                  0,
-                                  1,
-                                  0,
-                                ),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      colors: [
-                                        Color(0x00FFFFFF),
-                                        Theme.of(context).primaryColor,
-                                      ],
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                    ),
-                                  ),
-                                ),
-                              )),
-                          Flexible(
-                            flex: 1,
-                            child: Container(color: Theme.of(context).primaryColor),
+        return Scaffold(
+          backgroundColor: Colors.white,
+          body: Loading(
+            loading: _loading,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: FloatingBubbles.alwaysRepeating(
+                    noOfBubbles: 45,
+                    colorOfBubbles: Colors.blue.withAlpha(30),
+                    sizeFactor: 0.2,
+                    opacity: 70,
+                    paintingStyle: PaintingStyle.fill,
+                    strokeWidth: 8,
+                    shape: BubbleShape.circle,
+                  ),
+                ),
+                Column(
+                  children: [
+                    Flexible(
+                        flex: 3,
+                        child: Transform(
+                          transform: Matrix4.translationValues(
+                            0,
+                            1,
+                            0,
                           ),
-                        ],
-                      ),
-                      SafeArea(
-                        child: Padding(
-                          padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: Container(
-                              height: 200,
-                              width: 500,
-                              child: Image.asset(
-                                "assets/logo_black.png",
-                                width: 160,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Color(0x00FFFFFF),
+                                  Theme.of(context).primaryColor,
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      ValueListenableBuilder<bool>(
-                        valueListenable: _registering,
-                        builder: (context, registering, child) => registering ? _register(auth) : _login(auth),
-                      )
-                    ],
+                        )),
+                    Flexible(
+                      flex: 1,
+                      child: Container(color: Theme.of(context).primaryColor),
+                    ),
+                  ],
+                ),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 40, left: 30, right: 30),
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: Container(
+                          height: 200,
+                          width: 500,
+                          alignment: Alignment.center,
+                          child: Column(
+                            children: [
+                              Transform(
+                                transform: Matrix4.translationValues(
+                                  0,
+                                  25,
+                                  0,
+                                ),
+                                child: Text(
+                                  "Podcasting",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.blueAccent,
+                                    fontSize: 30,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                "Together",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontFamily: "Pacifico",
+                                  fontSize: 70,
+                                ),
+                              ),
+                            ],
+                          )),
+                    ),
                   ),
                 ),
-              );
+                ValueListenableBuilder<bool>(
+                  valueListenable: _registering,
+                  builder: (context, registering, child) => registering ? _register(auth) : _login(auth),
+                )
+              ],
+            ),
+          ),
+        );
       },
     );
   }
@@ -109,69 +143,19 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 20),
-                  spreadRadius: -20,
-                  blurRadius: 30,
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _email,
-                cursorColor: Colors.black,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
+          CustomTextField(
+            _email,
+            "Email",
+            icon: Icons.email,
           ),
-          const SizedBox(height: 15),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 20),
-                  spreadRadius: -20,
-                  blurRadius: 30,
-                )
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _password,
-                obscureText: true,
-                textInputAction: TextInputAction.go,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
+          CustomTextField(
+            _password,
+            "Password",
+            icon: Icons.lock,
           ),
           const SizedBox(height: 15),
           MaterialButton(
-              height: 54,
+              height: 55,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(10),
               ),
@@ -191,8 +175,8 @@ class _LoginPageState extends State<LoginPage> {
                 } else {
                   _loading.value = true;
                   auth.signIn(_email.text, _password.text).then((value) {
-                    if (auth.currentUser != null) _scroll.dispose();
                     _loading.value = false;
+                    Navigator.of(context).pushReplacement(HomePage.route());
                   }).onError((error, stackTrace) {
                     _loading.value = false;
                     print(error);
@@ -201,13 +185,48 @@ class _LoginPageState extends State<LoginPage> {
                 }
               }),
           const SizedBox(height: 15),
+          MaterialButton(
+              height: 55,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              color: Colors.white,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset(
+                    "assets/icons/google.png",
+                    scale: 5,
+                  ),
+                  Spacer(),
+                  Text(
+                    'Sign in with Google',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 18,
+                    ),
+                  ),
+                  Spacer(),
+                ],
+              ),
+              disabledColor: Colors.grey,
+              onPressed: () {
+                _loading.value = true;
+                auth.signInGoogle().then((value) {
+                  _loading.value = false;
+                  Navigator.of(context).pushReplacement(HomePage.route());
+                }).onError((error, stackTrace) {
+                  _loading.value = false;
+                });
+              }),
+          const SizedBox(height: 15),
           OutlinedButton(
             onPressed: () {
               _registering.value = true;
             },
             style: ButtonStyle(
               minimumSize: MaterialStateProperty.all<Size>(Size(double.maxFinite, 54.0)),
-              side: MaterialStateProperty.all<BorderSide>(BorderSide(color: Colors.black, width: 2)),
+              side: MaterialStateProperty.all<BorderSide>(BorderSide(color: Colors.black54, width: 2)),
               shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0))),
             ),
             child: Text(
@@ -248,157 +267,20 @@ class _LoginPageState extends State<LoginPage> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          const SizedBox(height: 15),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 20),
-                  spreadRadius: -20,
-                  blurRadius: 30,
-                )
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _name,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  hintText: 'Display name',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
+          CustomTextField(
+            _email,
+            "Email",
+            icon: Icons.email,
           ),
-          const SizedBox(height: 15),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 20),
-                  spreadRadius: -20,
-                  blurRadius: 30,
-                ),
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _email,
-                cursorColor: Colors.black,
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                decoration: InputDecoration(
-                  hintText: 'Email',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
+          CustomTextField(
+            _name,
+            "Username",
+            icon: Icons.person,
           ),
-          const SizedBox(height: 15),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: Colors.black, width: 2),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black87,
-                  offset: Offset(0, 20),
-                  spreadRadius: -20,
-                  blurRadius: 30,
-                )
-              ],
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: TextFormField(
-                controller: _password,
-                textInputAction: TextInputAction.go,
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  hintStyle: TextStyle(color: Colors.grey),
-                  border: InputBorder.none,
-                ),
-                style: TextStyle(color: Colors.black),
-              ),
-            ),
-          ),
-          const SizedBox(height: 15),
-          ValueListenableBuilder<bool>(
-            valueListenable: _referred,
-            builder: (context, referred, child) => Column(
-              children: [
-                InkWell(
-                  onTap: () => _referred.value = !referred,
-                  child: Container(
-                    child: Row(
-                      children: [
-                        Icon(referred ? Icons.check_box : Icons.check_box_outline_blank),
-                        SizedBox(
-                          width: 5,
-                        ),
-                        Expanded(
-                          child: Container(
-                            child: Text(
-                              'I have a referral code for my account.',
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 17,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                if (referred)
-                  Container(
-                    margin: const EdgeInsets.symmetric(vertical: 15),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.black, width: 2),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black87,
-                          offset: Offset(0, 20),
-                          spreadRadius: -20,
-                          blurRadius: 30,
-                        )
-                      ],
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20),
-                      child: TextFormField(
-                        controller: _referralCode,
-                        textInputAction: TextInputAction.go,
-                        decoration: InputDecoration(
-                          hintText: 'Referral code',
-                          hintStyle: TextStyle(color: Colors.grey),
-                          border: InputBorder.none,
-                        ),
-                        style: TextStyle(color: Colors.black),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
+          CustomTextField(
+            _password,
+            "Password",
+            icon: Icons.lock,
           ),
           const SizedBox(height: 15),
           MaterialButton(
@@ -428,8 +310,8 @@ class _LoginPageState extends State<LoginPage> {
                       .register(_name.text, _email.text, _password.text,
                           referralCode: _referred.value ? _referralCode.text.toUpperCase() : null)
                       .then((value) {
-                    if (auth.currentUser != null) _scroll.dispose();
                     _loading.value = false;
+                    Navigator.of(context).pushReplacement(HomePage.route());
                   }).onError((error, stackTrace) {
                     _loading.value = false;
                     print(error);
@@ -437,26 +319,21 @@ class _LoginPageState extends State<LoginPage> {
                   });
                 }
               }),
-          const SizedBox(height: 15),
-          OutlinedButton(
-            onPressed: () {
-              _registering.value = false;
-            },
-            style: ButtonStyle(
-              minimumSize: MaterialStateProperty.all<Size>(Size(double.maxFinite, 54.0)),
-              side: MaterialStateProperty.all<BorderSide>(BorderSide(color: Colors.black, width: 2)),
-              shape: MaterialStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0))),
-            ),
+          TextButton(
             child: Text(
               'Back to sign in',
               style: TextStyle(
-                fontWeight: FontWeight.w700,
-                color: Colors.white,
-                fontSize: 18,
+                fontSize: 16,
+                color: Colors.grey[100],
+                fontWeight: FontWeight.bold,
               ),
             ),
+            style: ButtonStyle(
+              overlayColor: MaterialStateProperty.all(Theme.of(context).primaryColor.withAlpha(0x20)),
+            ),
+            onPressed: () => _registering.value = false,
           ),
-          const SizedBox(height: 30),
+          const SizedBox(height: 50),
         ],
       ),
     );
@@ -484,7 +361,7 @@ class _LoginPageState extends State<LoginPage> {
                   children: [
                     const SizedBox(height: 25),
                     Align(
-                      alignment: Alignment.centerLeft,
+                      alignment: Alignment.center,
                       child: Text(
                         'Password reset',
                         style: TextStyle(
@@ -495,7 +372,7 @@ class _LoginPageState extends State<LoginPage> {
                         textAlign: TextAlign.left,
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 20),
                     loading
                         ? Center(
                             child: Padding(
@@ -507,38 +384,12 @@ class _LoginPageState extends State<LoginPage> {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(color: Colors.black, width: 2),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black87,
-                                      offset: Offset(0, 20),
-                                      spreadRadius: -20,
-                                      blurRadius: 30,
-                                    ),
-                                  ],
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                                  child: TextFormField(
-                                    controller: _email,
-                                    cursorColor: Colors.black,
-                                    keyboardType: TextInputType.emailAddress,
-                                    textInputAction: TextInputAction.next,
-                                    onChanged: (input) => _valid.value = input.isNotEmpty,
-                                    decoration: InputDecoration(
-                                      hintText: 'Email',
-                                      hintStyle: TextStyle(color: Colors.grey),
-                                      border: InputBorder.none,
-                                    ),
-                                    style: TextStyle(color: Colors.black),
-                                  ),
-                                ),
+                              CustomTextField(
+                                _email,
+                                "Email",
+                                icon: Icons.email,
                               ),
-                              const SizedBox(height: 30),
+                              const SizedBox(height: 20),
                               ValueListenableBuilder<bool>(
                                 valueListenable: _valid,
                                 builder: (context, valid, child) {
@@ -564,7 +415,6 @@ class _LoginPageState extends State<LoginPage> {
                                   );
                                 },
                               ),
-                              const SizedBox(height: 20),
                               TextButton(
                                 child: Padding(
                                   padding: const EdgeInsets.all(10),
