@@ -44,6 +44,7 @@ class UsersProvider with ChangeNotifier {
     await _storage.collection("users").get().then((value) {
       value.docs.forEach((userData) {
         final AppUser user = AppUser.fromCloudStorage(userData.data());
+        if (_auth.currentUser!.id == user.id) _auth.init(user: user);
         addUser(user);
       });
     });

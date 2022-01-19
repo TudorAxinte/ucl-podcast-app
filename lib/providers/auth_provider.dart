@@ -19,8 +19,12 @@ class AuthProvider with ChangeNotifier {
 
   bool get isUserLoggedIn => _currentUser != null;
 
-  Future<void> init() async {
-    _auth.currentUser == null ? _currentUser = null : _currentUser = AppUser.fromCredentials(_auth.currentUser!);
+  Future<void> init({AppUser? user}) async {
+    user != null
+        ? _currentUser = user
+        : _auth.currentUser == null
+            ? _currentUser = null
+            : _currentUser = AppUser.fromCredentials(_auth.currentUser!);
   }
 
   Future<void> signIn(String email, String password) async {
@@ -137,6 +141,11 @@ class AuthProvider with ChangeNotifier {
       print("Failed to reAuthenticate with error $error");
     });
     return success;
+  }
+
+  Future<void> updateEmail(String email) async {
+    if (email.isNotEmpty) await _auth.currentUser!.updateEmail(email);
+    notifyListeners();
   }
 
   Future<void> requestPasswordReset(String email) async {

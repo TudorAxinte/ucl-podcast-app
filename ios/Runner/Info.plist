@@ -10,6 +10,12 @@
 	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+   	<string>Photo library access required for selecting photos.</string>
+   	<key>NSCameraUsageDescription</key>
+    <string>Camera access required for taking photos.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Microphone access required for taking photos.</string>
 	<key>CFBundleName</key>
 	<string>podcasts_app</string>
 	<key>CFBundlePackageType</key>

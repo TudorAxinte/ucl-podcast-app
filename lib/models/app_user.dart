@@ -49,7 +49,7 @@ class AppUser {
   }
 
   factory AppUser.fromCloudStorage(Map<String, dynamic> data) {
-    AppUser user = AppUser._(data["id"], data["email"], data["name"], data["photoUrl"]);
+    AppUser user = AppUser._(data["id"], data["email"], data["name"], data["photoUrl"] ?? "");
     user.registeredDate = DateTime.tryParse(data["register_timestamp"]);
     return user;
   }
