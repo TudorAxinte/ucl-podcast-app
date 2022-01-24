@@ -46,6 +46,8 @@ extension ex on HomeScreen {
 class HomeProvider with ChangeNotifier {
   HomeScreen _currentPage = HomeScreen.values.first;
 
+  int get currentIndex => HomeScreen.values.indexOf(_currentPage);
+
   Widget get page => _currentPage.page;
 
   HomeScreen get tab => _currentPage;

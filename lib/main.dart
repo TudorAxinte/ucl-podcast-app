@@ -33,7 +33,7 @@ class PodcastApp extends StatelessWidget {
       providers: [
         Provider<AnalyticsProvider>(create: (_) => AnalyticsProvider()),
         ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
-        ChangeNotifierProvider<NetworkDataProvider>(create: (_) => NetworkDataProvider()),
+        ChangeNotifierProvider<NetworkDataProvider>(create: (_) => NetworkDataProvider()..init()),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(_auth, _storage)),
         ChangeNotifierProxyProvider<AuthProvider, UsersProvider>(
           create: (_) => UsersProvider(_storage),
@@ -46,6 +46,7 @@ class PodcastApp extends StatelessWidget {
         theme: ThemeData(
           primaryColor: Colors.blue,
           accentColor: Color(0xffF0074D),
+          backgroundColor: Color(0xffF0F0F0),
           fontFamily: "Nunito",
         ),
         builder: BotToastInit(),

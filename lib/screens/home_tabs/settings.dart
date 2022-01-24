@@ -29,14 +29,15 @@ class SettingsPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: hasNotch ? 40 : 20),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                    colors: [
-                      Theme.of(context).primaryColor,
-                      Colors.blueAccent,
-                    ],
-                    begin: const FractionalOffset(0.0, 0.0),
-                    end: const FractionalOffset(0.0, 1.0),
-                    stops: [0.4, 1.0],
-                    tileMode: TileMode.decal),
+                  colors: [
+                    Theme.of(context).primaryColor,
+                    Colors.lightBlueAccent,
+                  ],
+                  begin: const FractionalOffset(0.0, 0.0),
+                  end: const FractionalOffset(0.0, 1.0),
+                  stops: [0.4, 1.0],
+                  tileMode: TileMode.decal,
+                ),
               ),
               child: Column(
                 children: [
@@ -78,48 +79,45 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   InkResponse(
-                      onTap: () async {
-                        final result = await showDialogBox(context, ImagePicker(), 200.0, size.width * 0.5);
-                        if (result != null) {
-                          await auth.changeProfilePicture(result);
-                        }
-                      },
-                      child: Stack(
-                        children: [
-                          Container(
-                            width: 150,
-                            height: 150,
-                            padding: const EdgeInsets.all(5),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.white,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black26,
-                                  spreadRadius: 2.3,
-                                  blurRadius: 3.0,
-                                  offset: Offset(1.0, 1.0),
-                                )
-                              ],
-                            ),
-                            child: ClipOval(
-                              child: CachedNetworkImage(
-                                fit: BoxFit.cover,
-                                imageUrl: auth.currentUser!.photoUrl,
-                                placeholder: (context, url) => Center(child: StyledProgressBar()),
-                                errorWidget: (context, url, error) => Padding(
-                                  padding: const EdgeInsets.all(25),
-                                  child: Icon(
-                                    Icons.image_not_supported,
-                                    size: 50,
-                                    color: Colors.black54,
-                                  ),
-                                ),
-                              ),
+                    onTap: () async {
+                      final result = await showDialogBox(context, ImagePicker(), 200.0, size.width * 0.5);
+                      if (result != null) {
+                        await auth.changeProfilePicture(result);
+                      }
+                    },
+                    child: Container(
+                      width: 150,
+                      height: 150,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            spreadRadius: 2.3,
+                            blurRadius: 3.0,
+                            offset: Offset(1.0, 1.0),
+                          )
+                        ],
+                      ),
+                      child: ClipOval(
+                        child: CachedNetworkImage(
+                          fit: BoxFit.cover,
+                          imageUrl: auth.currentUser!.photoUrl,
+                          placeholder: (context, url) => Center(child: StyledProgressBar()),
+                          errorWidget: (context, url, error) => Padding(
+                            padding: const EdgeInsets.all(25),
+                            child: Icon(
+                              Icons.image_not_supported,
+                              size: 50,
+                              color: Colors.black54,
                             ),
                           ),
-                        ],
-                      )),
+                        ),
+                      ),
+                    ),
+                  ),
                   const SizedBox(
                     height: 10,
                   ),
@@ -141,40 +139,66 @@ class SettingsPage extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(
-              height: 30,
-            ),
-            optionCard(
-              context,
-              "Account",
-              size,
-              Icons.person,
-              showCustomBottomSheet(context, AccountSettings(), minHeight: size.height / 1.6, maxHeight: size.height),
-              subtitle: "Settings and information",
-            ),
-            optionCard(context, "Friends", size, Icons.group,
-                showCustomBottomSheet(context, FriendsPage(), minHeight: size.height / 1.6, maxHeight: size.height),
-                subtitle: "Your network and friends"),
-            optionCard(
-              context,
-              "Frequently asked questions",
-              size,
-              Icons.perm_device_information_sharp,
-              showCustomBottomSheet(context, FaqPage(), minHeight: size.height / 1.6, maxHeight: size.height / 1.6),
-              subtitle: "About the project",
-            ),
-            optionCard(
-              context,
-              "Share the app",
-              size,
-              Icons.share,
-              () => null,
-              subtitle: "Podcast together with your friends",
-            ),
-            optionCard(context, "Contact us", size, Icons.email_outlined, () => launch("mailto:zcabtax@ucl.ac.uk"),
-                subtitle: "Get in touch"),
-            const SizedBox(
-              height: 20,
+            Transform(
+              transform: Matrix4.translationValues(
+                0,
+                -20,
+                0,
+              ),
+              child: Container(
+                width: size.width,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor,
+                  borderRadius: BorderRadius.only(
+                    topRight: Radius.circular(20),
+                    topLeft: Radius.circular(20),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(
+                      height: 30,
+                    ),
+                    optionCard(
+                      context,
+                      "Account",
+                      size,
+                      Icons.person,
+                      showCustomBottomSheet(context, AccountSettings(),
+                          minHeight: size.height / 1.6, maxHeight: size.height),
+                      subtitle: "Settings and information",
+                    ),
+                    optionCard(
+                        context,
+                        "Friends",
+                        size,
+                        Icons.group,
+                        showCustomBottomSheet(context, FriendsPage(),
+                            minHeight: size.height / 1.6, maxHeight: size.height),
+                        subtitle: "Your network and friends"),
+                    optionCard(
+                      context,
+                      "Frequently asked questions",
+                      size,
+                      Icons.perm_device_information_sharp,
+                      showCustomBottomSheet(context, FaqPage(),
+                          minHeight: size.height / 1.6, maxHeight: size.height / 1.6),
+                      subtitle: "About the project",
+                    ),
+                    optionCard(
+                      context,
+                      "Share the app",
+                      size,
+                      Icons.share,
+                      () => null,
+                      subtitle: "Podcast together with your friends",
+                    ),
+                    optionCard(
+                        context, "Contact us", size, Icons.email_outlined, () => launch("mailto:zcabtax@ucl.ac.uk"),
+                        subtitle: "Get in touch"),
+                  ],
+                ),
+              ),
             ),
           ],
         ),

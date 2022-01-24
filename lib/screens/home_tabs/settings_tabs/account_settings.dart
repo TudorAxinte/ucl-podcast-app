@@ -28,7 +28,9 @@ class AccountSettingsState extends State<AccountSettings> {
     _emailController = TextEditingController.fromValue(
       TextEditingValue(
         text: auth.currentUser!.email,
-        selection: TextSelection.collapsed(offset: auth.currentUser!.email != "" ? auth.currentUser!.email.length : 0),
+        selection: TextSelection.collapsed(
+          offset: auth.currentUser!.email != "" ? auth.currentUser!.email.length : 0,
+        ),
       ),
     );
     _oldPassword = TextEditingController();

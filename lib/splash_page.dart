@@ -12,8 +12,6 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> with AfterLayoutMixin<SplashScreen> {
-  late final AuthProvider _auth;
-  late final NetworkDataProvider _network;
 
   @override
   void afterFirstLayout(BuildContext context) {
@@ -21,10 +19,8 @@ class _SplashScreenState extends State<SplashScreen> with AfterLayoutMixin<Splas
   }
 
   void _routeUser() async {
-    _network = Provider.of<NetworkDataProvider>(context, listen: false);
-    _auth = Provider.of<AuthProvider>(context, listen: false);
+    final _auth = Provider.of<AuthProvider>(context, listen: false);
 
-    await _network.init();
     await _auth.init();
 
     Navigator.of(context).pushReplacement(

@@ -22,7 +22,7 @@ class HomeState extends State<HomePage> {
     return Consumer2<HomeProvider, AnalyticsProvider>(
       builder: (context, home, analytics, child) {
         return Scaffold(
-          backgroundColor: Color(0xffF5F5F5),
+          backgroundColor:Theme.of(context).backgroundColor,
           body: AnimatedSwitcher(
             duration: Duration(milliseconds: 300),
             child: home.page,
