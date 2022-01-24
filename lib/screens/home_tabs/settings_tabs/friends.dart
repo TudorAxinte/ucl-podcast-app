@@ -71,7 +71,7 @@ class FriendsState extends State<FriendsPage> {
                     child: Icon(
                       Icons.person_add,
                       size: 30,
-                      color: maxInvitesSent ? Colors.black26 : Theme.of(context).accentColor,
+                      color: maxInvitesSent ? Colors.black26 : Theme.of(context).primaryColor,
                     ),
                     onTap: () => maxInvitesSent
                         ? null
@@ -87,8 +87,13 @@ class FriendsState extends State<FriendsPage> {
             ),
             ValueListenableBuilder<bool>(
               valueListenable: loading,
-              builder: (context, loading, _) =>
-                  loading ? SizedProgressCircular() : friendsList(friends, friendRequests, UniqueKey()),
+              builder: (context, loading, _) => loading
+                  ? SizedProgressCircular()
+                  : friendsList(
+                      friends,
+                      friendRequests,
+                      UniqueKey(),
+                    ),
             )
           ],
         );
@@ -133,25 +138,19 @@ class FriendsState extends State<FriendsPage> {
                 ],
               ),
               child: ClipOval(
-                child: user.photoUrl == ""
-                    ? CachedNetworkImage(
-                        fit: BoxFit.cover,
-                        imageUrl: user.photoUrl,
-                        placeholder: (context, url) => Center(child: StyledProgressBar()),
-                        errorWidget: (context, url, error) => Padding(
-                          padding: const EdgeInsets.all(25),
-                          child: Icon(
-                            Icons.image_not_supported,
-                            size: 25,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      )
-                    : Icon(
-                        Icons.person,
-                        size: 25,
-                        color: Theme.of(context).accentColor,
-                      ),
+                child: CachedNetworkImage(
+                  fit: BoxFit.cover,
+                  imageUrl: user.photoUrl,
+                  placeholder: (context, url) => Center(child: StyledProgressBar()),
+                  errorWidget: (context, url, error) => Padding(
+                    padding: const EdgeInsets.all(5),
+                    child: Icon(
+                      Icons.image_not_supported,
+                      size: 25,
+                      color: Colors.black54,
+                    ),
+                  ),
+                ),
               ),
             ),
             const SizedBox(width: 15),
@@ -256,7 +255,7 @@ class FriendsState extends State<FriendsPage> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(10),
             ),
-            color: Theme.of(context).accentColor,
+            color: Theme.of(context).primaryColor,
             child: Text(
               'Add friends',
               style: TextStyle(
@@ -278,7 +277,7 @@ class FriendsState extends State<FriendsPage> {
               'Share App',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             onPressed: () {
@@ -303,7 +302,7 @@ class FriendsState extends State<FriendsPage> {
               'Invite new users',
               style: TextStyle(
                 fontSize: 16,
-                color: Theme.of(context).accentColor,
+                color: Theme.of(context).primaryColor,
               ),
             ),
             onPressed: () {

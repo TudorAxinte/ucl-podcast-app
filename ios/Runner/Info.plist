@@ -16,6 +16,17 @@
     <string>Camera access required for taking photos.</string>
     <key>NSMicrophoneUsageDescription</key>
     <string>Microphone access required for taking photos.</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+    	<dict>
+    		<key>CFBundleTypeRole</key>
+    		<string>Editor</string>
+    		<key>CFBundleURLSchemes</key>
+    		<array>
+	        <string>com.googleusercontent.apps.659022053490-a4q0b5bgkufbrmcm6s2nikd7ha25t2gb</string>
+    		</array>
+    	</dict>
+    </array>
 	<key>CFBundleName</key>
 	<string>podcasts_app</string>
 	<key>CFBundlePackageType</key>

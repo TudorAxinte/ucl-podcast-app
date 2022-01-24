@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_app/models/app_user.dart';
-import 'package:provider/provider.dart';
 
 import 'auth_provider.dart';
 
@@ -41,11 +39,15 @@ class UsersProvider with ChangeNotifier {
   Future<void> fetchUsers() async {
     _users.clear();
     _usersMap.clear();
+    final currentUser = _auth.currentUser;
     await _storage.collection("users").get().then((value) {
       value.docs.forEach((userData) {
-        final AppUser user = AppUser.fromCloudStorage(userData.data());
-        if (_auth.currentUser!.id == user.id) _auth.init(user: user);
-        addUser(user);
+        try {
+          final AppUser user = AppUser.fromCloudStorage(userData.data());
+          if (currentUser!.id != user.id) addUser(user);
+        } catch (error) {
+          print("Failed to add user ${userData.id}: $error");
+        }
       });
     });
     notifyListeners();

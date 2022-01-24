@@ -13,7 +13,6 @@ class AccountSettings extends StatefulWidget {
 
 class AccountSettingsState extends State<AccountSettings> {
   late final AuthProvider auth;
-  late final TextEditingController _nameController;
   late final TextEditingController _emailController;
   late final TextEditingController _oldPassword;
   late final TextEditingController _newPassword;
@@ -26,13 +25,6 @@ class AccountSettingsState extends State<AccountSettings> {
   void initState() {
     super.initState();
     auth = Provider.of<AuthProvider>(context, listen: false);
-    _nameController = TextEditingController.fromValue(
-      TextEditingValue(
-        text: auth.currentUser!.username,
-        selection:
-            TextSelection.collapsed(offset: auth.currentUser!.username == "" ? auth.currentUser!.username.length : 0),
-      ),
-    );
     _emailController = TextEditingController.fromValue(
       TextEditingValue(
         text: auth.currentUser!.email,
@@ -81,25 +73,30 @@ class AccountSettingsState extends State<AccountSettings> {
                 SizedBox(height: 20),
                 settingsCard(auth.currentUser!.username, Icons.person, null),
                 ValueListenableBuilder<bool>(
-                    valueListenable: editingEmail,
-                    builder: (context, editing, _) => editing
-                        ? editingCard(
-                            "Choose a new email",
-                            Icons.email,
-                            editingEmail,
-                            _emailController,
-                            () => auth
-                                    .updateEmail(_emailController.text)
-                                    .then((value) => editingEmail.value = false)
-                                    .onError((error, stackTrace) {
-                                  BotToast.showSimpleNotification(
-                                      title: "Error", subTitle: error.toString(), duration: Duration(seconds: 2));
-                                  editingEmail.value = false;
-                                  return true;
-                                }),
-                            size)
-                        : settingsCard(auth.currentUser!.email, Icons.email, () => editingEmail.value = true,
-                            editable: true)),
+                  valueListenable: editingEmail,
+                  builder: (context, editing, _) => editing
+                      ? editingCard(
+                          "Choose a new email",
+                          Icons.email,
+                          editingEmail,
+                          _emailController,
+                          () => auth
+                                  .updateEmail(_emailController.text)
+                                  .then((value) => editingEmail.value = false)
+                                  .onError((error, stackTrace) {
+                                BotToast.showSimpleNotification(
+                                    title: "Error", subTitle: error.toString(), duration: Duration(seconds: 2));
+                                editingEmail.value = false;
+                                return true;
+                              }),
+                          size)
+                      : settingsCard(
+                          auth.currentUser!.email,
+                          Icons.email,
+                          () => editingEmail.value = true,
+                          editable: !auth.isSocialLogin,
+                        ),
+                ),
                 ValueListenableBuilder<bool>(
                   valueListenable: editingPassword,
                   builder: (context, editing, _) => editing
@@ -217,7 +214,7 @@ class AccountSettingsState extends State<AccountSettings> {
     return Padding(
       padding: EdgeInsets.only(bottom: 20),
       child: InkWell(
-        onTap: function,
+        onTap: editable ? function : null,
         child: Container(
           height: 50,
           child: Column(

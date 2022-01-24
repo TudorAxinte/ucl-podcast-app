@@ -127,7 +127,7 @@ class AddFriendsState extends State<AddFriends> {
                                 onChanged: (value) => _search.value = value,
                                 decoration: InputDecoration(
                                   hintText: 'Search',
-                                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                                   hintStyle: TextStyle(color: Colors.grey),
                                   border: InputBorder.none,
                                 ),
@@ -145,8 +145,8 @@ class AddFriendsState extends State<AddFriends> {
                   _search,
                   builder: (context, loading, searched, _) {
                     appUsers.retainWhere((user) => user.username.toLowerCase().contains(searched.toLowerCase()));
-                    appUsers.removeWhere((user) => _currentUser!.friendsIds.contains(user.shortId));
-                    appUsers.removeWhere((user) => _currentUser!.friendRequestsSentIds.contains(user.shortId));
+                    appUsers.removeWhere((user) => _currentUser!.friendsIds.contains(user.id));
+                    appUsers.removeWhere((user) => _currentUser!.friendRequestsSentIds.contains(user.id));
 
                     return appUsers.isEmpty
                         ? Padding(
@@ -161,6 +161,7 @@ class AddFriendsState extends State<AddFriends> {
                             ),
                           )
                         : ListView(
+                      padding: EdgeInsets.zero,
                             children: appUsers.map((user) => userCard(context, user)).toList(),
                           );
                   },
@@ -200,24 +201,18 @@ class AddFriendsState extends State<AddFriends> {
                   ],
                 ),
                 child: ClipOval(
-                  child: user.photoUrl != ""
-                      ? CachedNetworkImage(
+                  child:CachedNetworkImage(
                           fit: BoxFit.cover,
                           imageUrl: user.photoUrl,
                           placeholder: (context, url) => Center(child: StyledProgressBar()),
                           errorWidget: (context, url, error) => Padding(
-                            padding: const EdgeInsets.all(25),
+                            padding: const EdgeInsets.all(5),
                             child: Icon(
                               Icons.image_not_supported,
                               size: 25,
                               color: Colors.black54,
                             ),
                           ),
-                        )
-                      : Icon(
-                          Icons.person,
-                          size: 25,
-                          color: Theme.of(context).accentColor,
                         ),
                 ),
               ),

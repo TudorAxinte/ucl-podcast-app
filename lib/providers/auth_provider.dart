@@ -25,6 +25,18 @@ class AuthProvider with ChangeNotifier {
         : _auth.currentUser == null
             ? _currentUser = null
             : _currentUser = AppUser.fromCredentials(_auth.currentUser!);
+
+    if (_currentUser != null) await _fetchAuthServerData();
+  }
+
+  Future<void> _fetchAuthServerData() async {
+    final usersRef = _storage.collection('users');
+    final userId = _auth.currentUser!.uid;
+    await usersRef.doc(userId).get().then((value) {
+      _currentUser!.updateRegisterData(
+        DateTime.parse(value.get("register_timestamp")),
+      );
+    });
   }
 
   Future<void> signIn(String email, String password) async {
@@ -45,7 +57,7 @@ class AuthProvider with ChangeNotifier {
       final userCredentials = await _auth.signInWithCredential(credential);
       if (userCredentials.user != null) {
         if (userCredentials.user!.email != null) {
-          if (await _isGoogleEmailAlreadyRegistered()) {
+          if (await _isEmailAlreadyRegistered()) {
             await init();
           } else {
             await _auth.currentUser?.updateDisplayName(signInAccount.displayName ?? '');
@@ -58,6 +70,7 @@ class AuthProvider with ChangeNotifier {
               "id": userId,
               "name": signInAccount.displayName,
               "email": signInAccount.email,
+              "photoUrl": signInAccount.photoUrl,
               "register_timestamp": DateTime.now().toString()
             };
             await usersRef.doc(userId).set(data);
@@ -158,8 +171,16 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> _isGoogleEmailAlreadyRegistered() async {
-    final list = await _auth.fetchSignInMethodsForEmail(_auth.currentUser!.email!);
-    return list.isEmpty;
+  Future<bool> _isEmailAlreadyRegistered() async {
+    final usersRef = _storage.collection('users');
+    final userId = _auth.currentUser!.uid;
+    final account = await usersRef.doc(userId).get();
+    return account.exists;
   }
+
+  bool get isSocialLogin => _auth.currentUser!.providerData
+      .where(
+        (element) => element.providerId == "google.com",
+      )
+      .isNotEmpty;
 }

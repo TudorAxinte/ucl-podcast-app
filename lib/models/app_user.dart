@@ -7,7 +7,7 @@ class AppUser {
   final String username;
   String _photoUrl;
 
-  DateTime? registeredDate;
+  DateTime? _registeredDate;
 
   Set<String> _friendsIds = {};
   Set<String> _friendRequestsIds = {};
@@ -23,7 +23,9 @@ class AppUser {
 
   Set get friendRequestsSentIds => Set.from(_friendRequestsSentIds);
 
-  int get accountAge => registeredDate == null ? 0 : DateTime.now().difference(registeredDate!).inDays;
+  int get accountAge => _registeredDate == null ? 0 : DateTime.now().difference(_registeredDate!).inDays;
+
+  void updateRegisterData(DateTime date) => _registeredDate = date;
 
   void updatePhotoUrl(String url) => _photoUrl = url;
 
@@ -50,7 +52,7 @@ class AppUser {
 
   factory AppUser.fromCloudStorage(Map<String, dynamic> data) {
     AppUser user = AppUser._(data["id"], data["email"], data["name"], data["photoUrl"] ?? "");
-    user.registeredDate = DateTime.tryParse(data["register_timestamp"]);
+    user._registeredDate = DateTime.tryParse(data["register_timestamp"]);
     return user;
   }
 }
