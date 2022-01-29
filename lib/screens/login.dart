@@ -2,7 +2,7 @@ import 'package:bot_toast/bot_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:podcasts_app/components/custom_textfield.dart';
+import 'package:podcasts_app/components/templates/custom_textfield.dart';
 import 'package:podcasts_app/util/loading.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -26,8 +26,6 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _loading = ValueNotifier(false);
-  final _referred = ValueNotifier(false);
-  final _referralCode = TextEditingController();
   final _registering = ValueNotifier(false);
   final _name = TextEditingController();
   final _email = TextEditingController();
@@ -301,14 +299,12 @@ class _LoginPageState extends State<LoginPage> {
               onPressed: () {
                 if (_email.text.isEmpty ||
                     _name.text.isEmpty ||
-                    _password.text.isEmpty ||
-                    (_referred.value && _referralCode.text.isEmpty)) {
+                    _password.text.isEmpty) {
                   BotToast.showSimpleNotification(title: "Please complete all fields.", duration: Duration(seconds: 3));
                 } else {
                   _loading.value = true;
                   auth
-                      .register(_name.text, _email.text, _password.text,
-                          referralCode: _referred.value ? _referralCode.text.toUpperCase() : null)
+                      .register(_name.text, _email.text, _password.text)
                       .then((value) {
                     _loading.value = false;
                     Navigator.of(context).pushReplacement(HomePage.route());
