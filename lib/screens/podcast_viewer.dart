@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
+import 'package:podcasts_app/components/audio/player.dart';
 import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/cards/vertical_podcast_card.dart';
 import 'package:podcasts_app/models/podcast.dart';
@@ -212,9 +214,24 @@ class PodcastViewerPage extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             itemCount: episodes.length,
                             itemBuilder: (_, index) {
-                              final episode = loading ? PodcastEpisode.dummy() : episodes[index];
+                              final episode = episodes[index];
+
                               return MaterialButton(
-                                onPressed: () {},
+                                onPressed: loading
+                                    ? null
+                                    : () {
+                                        showCupertinoModalBottomSheet(
+                                          barrierColor: Colors.black,
+                                          topRadius: Radius.circular(20),
+                                          context: context,
+                                          builder: (_) => PodcastPlayer(
+                                            episode,
+                                            playNext: List.from(
+                                              podcast.episodes.sublist(index + 1),
+                                            ),
+                                          ),
+                                        );
+                                      },
                                 child: EpisodeCard(
                                   episode,
                                   loading: loading,
@@ -272,7 +289,6 @@ class PodcastViewerPage extends StatelessWidget {
                       infoRow("First episode", podcast.firstEpisodeDate.formattedString),
                       infoRow("Last episode", podcast.lastEpisodeDate.formattedString),
                       infoRow("Contact", podcast.email, showDivider: false),
-
                       SizedBox(
                         height: 20,
                       ),

@@ -177,7 +177,7 @@ class AddFriendsState extends State<AddFriends> {
   Widget userCard(BuildContext context, AppUser user) => InkWell(
         onTap: () {
           _selected.value.contains(user) ? _selected.value.remove(user) : _selected.value.add(user);
-          _selected.notifyListeners();
+          // _selected.notifyListeners();
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),

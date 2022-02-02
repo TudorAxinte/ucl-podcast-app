@@ -1,7 +1,6 @@
 import 'package:after_layout/after_layout.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
-import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home.dart';
 import 'package:podcasts_app/screens/login.dart';
 import 'package:provider/provider.dart';

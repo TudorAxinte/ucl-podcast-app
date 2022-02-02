@@ -1,3 +1,5 @@
+import 'dart:math';
+
 enum PodcastCategory { BUSINESS, MINDFULNESS, NEWS, TECH }
 
 extension ex on PodcastCategory {
@@ -66,6 +68,9 @@ class Podcast {
 
   @override
   bool operator ==(Object other) => other is Podcast && other.title == this.title && other.id == this.id;
+
+  @override
+  int get hashCode => super.hashCode;
 }
 
 class PodcastEpisode {
@@ -83,8 +88,8 @@ class PodcastEpisode {
 
   factory PodcastEpisode.dummy() => PodcastEpisode._(
         "ID",
-        "Example episode",
-        "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        "Example episode ${Random().nextInt(100)}",
+        "https://file-examples-com.github.io/uploads/2017/11/file_example_MP3_700KB.mp3",
         "This is an example episode to test the UI of the application before real data comes in.",
         500,
         DateTime.utc(2022),
@@ -92,4 +97,7 @@ class PodcastEpisode {
 
   @override
   bool operator ==(Object other) => other is PodcastEpisode && other.title == this.title && other.id == this.id;
+
+  @override
+  int get hashCode => super.hashCode;
 }
