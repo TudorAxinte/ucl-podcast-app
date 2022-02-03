@@ -29,8 +29,11 @@ dependencies:
   hive_flutter: ^1.1.0
   cached_network_image: ^3.1.0
 
-  # Utils
+  # Audio
   just_audio: ^0.9.18
+  just_audio_background: ^0.0.1-beta.3
+
+  # Utils
   share: ^2.0.4
   image_picker: ^0.8.3+2
   bot_toast: ^4.0.1
@@ -76,7 +79,7 @@ flutter:
           weight: 600
     - family: Pacifico
       fonts:
-      - asset: "assets/fonts/Pacifico-Regular.ttf"
+        - asset: "assets/fonts/Pacifico-Regular.ttf"
 
 
   uses-material-design: true

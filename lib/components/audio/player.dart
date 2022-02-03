@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:podcasts_app/components/cards/light_episode_card.dart';
 import 'package:podcasts_app/models/podcast.dart';
 import 'package:podcasts_app/util/utils.dart';
@@ -42,7 +43,17 @@ class PodcastPlayerState extends State<PodcastPlayer> {
 
   void _createPlayer() async {
     _loading.value = true;
-    _duration.value = (await _player!.setUrl(_selectedEpisode.value.audioUrl))!;
+    _duration.value = (await _player!.setAudioSource(
+      AudioSource.uri(
+        Uri.parse(_selectedEpisode.value.audioUrl),
+        tag: MediaItem(
+          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          album: _selectedEpisode.value.podcast.title,
+          title: _selectedEpisode.value.title,
+          artUri: Uri.parse(_selectedEpisode.value.podcast.thumbnailUrl),
+        ),
+      ),
+    ))!;
     _player!.positionStream.listen((time) {
       _currentPosition.value = time;
     });

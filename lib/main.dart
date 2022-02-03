@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:just_audio_background/just_audio_background.dart';
 import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
@@ -58,6 +59,11 @@ class PodcastApp extends StatelessWidget {
 
 Future<void> initializeDependencies() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await JustAudioBackground.init(
+    androidNotificationChannelId: 'com.ryanheise.bg_demo.channel.audio',
+    androidNotificationChannelName: 'Audio playback',
+    androidNotificationOngoing: true,
+  );
   await Hive.initFlutter();
   await Firebase.initializeApp();
 }
