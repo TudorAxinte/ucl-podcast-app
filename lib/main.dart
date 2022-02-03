@@ -46,7 +46,7 @@ class PodcastApp extends StatelessWidget {
           theme: ThemeData(
             primaryColor: Colors.blue,
             accentColor: Color(0xffF0074D),
-            backgroundColor: Color(0xffF0F0F0),
+            backgroundColor: Color(0xffEEEEEE).withBlue(255),
             fontFamily: "Nunito",
           ),
           builder: BotToastInit(),

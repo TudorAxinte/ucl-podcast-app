@@ -6,9 +6,10 @@ import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/cards/vertical_podcast_card.dart';
 import 'package:podcasts_app/models/podcast.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
+import 'package:podcasts_app/screens/home_tabs/podcast_pages/episodes_viewer.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
-import '../util/extensions.dart';
+import '../../../util/extensions.dart';
 
 class PodcastViewerPage extends StatelessWidget {
   final Podcast podcast;
@@ -121,47 +122,64 @@ class PodcastViewerPage extends StatelessWidget {
                     SizedBox(
                       height: 10,
                     ),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        elevation: MaterialStateProperty.all(0),
-                        shape: MaterialStateProperty.all(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20.0),
-                          ),
-                        ),
-                        padding: MaterialStateProperty.all(EdgeInsets.zero),
-                      ),
-                      onPressed: () {},
-                      child: Container(
-                        width: 200,
-                        height: 50,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.all(
-                            Radius.circular(20.0),
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.play_arrow,
-                              color: Colors.black,
-                              size: 30,
+                    ValueListenableBuilder<bool>(
+                      valueListenable: _loading,
+                      builder: (context, loading, _) => ElevatedButton(
+                        style: ButtonStyle(
+                          elevation: MaterialStateProperty.all(0),
+                          shape: MaterialStateProperty.all(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20.0),
                             ),
-                            SizedBox(
-                              width: 5,
+                          ),
+                          padding: MaterialStateProperty.all(EdgeInsets.zero),
+                        ),
+                        onPressed: loading
+                            ? null
+                            : () {
+                                showCupertinoModalBottomSheet(
+                                  barrierColor: Colors.black,
+                                  topRadius: Radius.circular(20),
+                                  context: context,
+                                  builder: (_) => PodcastPlayer(
+                                    episodes.last,
+                                    playNext: List.from(
+                                      podcast.episodes..removeAt(0),
+                                    ),
+                                  ),
+                                );
+                              },
+                        child: Container(
+                          width: 200,
+                          height: 50,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(20.0),
                             ),
-                            Text(
-                              "Last episode",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.play_arrow,
                                 color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                                size: 30,
                               ),
-                            ),
-                          ],
+                              SizedBox(
+                                width: 5,
+                              ),
+                              Text(
+                                "Last episode",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -196,11 +214,21 @@ class PodcastViewerPage extends StatelessWidget {
                                 fontSize: 24,
                               ),
                             ),
-                            Text(
-                              "View all",
-                              style: TextStyle(
-                                color: Theme.of(context).primaryColor,
-                                fontSize: 15,
+                            InkWell(
+                              onTap: () {
+                                showCupertinoModalBottomSheet(
+                                  barrierColor: Colors.black,
+                                  topRadius: Radius.circular(20),
+                                  context: context,
+                                  builder: (_) => EpisodesViewer(podcast),
+                                );
+                              },
+                              child: Text(
+                                "View all",
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ],
@@ -242,14 +270,24 @@ class PodcastViewerPage extends StatelessWidget {
                       SizedBox(
                         height: 10,
                       ),
-                      Container(
-                        padding: const EdgeInsets.only(left: 30),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          "View all ${podcast.totalEpisodes} episodes ",
-                          style: TextStyle(
-                            color: Theme.of(context).primaryColor,
-                            fontSize: 15,
+                      InkWell(
+                        onTap: () {
+                          showCupertinoModalBottomSheet(
+                            barrierColor: Colors.black,
+                            topRadius: Radius.circular(20),
+                            context: context,
+                            builder: (_) => EpisodesViewer(podcast),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.only(left: 30),
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            "View all ${podcast.totalEpisodes} episodes ",
+                            style: TextStyle(
+                              color: Theme.of(context).primaryColor,
+                              fontSize: 15,
+                            ),
                           ),
                         ),
                       ),

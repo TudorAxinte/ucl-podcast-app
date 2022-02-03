@@ -30,8 +30,8 @@ Widget optionCard(context, String title, size, IconData icon, function, {String?
     child: InkWell(
       onTap: function,
       child: Container(
-        width: size.width * 0.8,
-        padding: EdgeInsets.all(10),
+        width: size.width * 0.9,
+        padding: EdgeInsets.all(15),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(10)),
           color: Colors.white,

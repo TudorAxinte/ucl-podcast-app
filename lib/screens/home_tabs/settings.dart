@@ -28,16 +28,8 @@ class SettingsPage extends StatelessWidget {
             Container(
               padding: EdgeInsets.symmetric(vertical: hasNotch ? 40 : 20),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).primaryColor,
-                    Colors.lightBlueAccent,
-                  ],
-                  begin: const FractionalOffset(0.0, 0.0),
-                  end: const FractionalOffset(0.0, 1.0),
-                  stops: [0.4, 1.0],
-                  tileMode: TileMode.decal,
-                ),
+                color: Colors.white,
+
               ),
               child: Column(
                 children: [
@@ -124,15 +116,14 @@ class SettingsPage extends StatelessWidget {
                   Text(
                     auth.currentUser!.username,
                     style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: size.height * 0.03,
                     ),
                   ),
                   Text(
                     '${auth.currentUser!.accountAge} days old',
                     style: TextStyle(
-                      color: Colors.grey[100],
+                      color: Theme.of(context).primaryColor,
                       fontSize: size.height * 0.017,
                     ),
                   ),

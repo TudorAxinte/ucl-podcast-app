@@ -7,7 +7,6 @@ import 'package:podcasts_app/util/loading.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import 'package:floating_bubbles/floating_bubbles.dart';
-
 import 'home.dart';
 
 enum Screen { ACCOUNT_LOGIN, ACCOUNT_REGISTER, SOCIAL_LOGIN }

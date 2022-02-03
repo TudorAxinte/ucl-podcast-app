@@ -47,7 +47,7 @@ class PodcastPlayerState extends State<PodcastPlayer> {
       AudioSource.uri(
         Uri.parse(_selectedEpisode.value.audioUrl),
         tag: MediaItem(
-          id: DateTime.now().microsecondsSinceEpoch.toString(),
+          id: _selectedEpisode.value.title,
           album: _selectedEpisode.value.podcast.title,
           title: _selectedEpisode.value.title,
           artUri: Uri.parse(_selectedEpisode.value.podcast.thumbnailUrl),
