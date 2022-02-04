@@ -7,7 +7,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: subosito/flutter-action@v2
-      - run: flutter pub get
-      - run: flutter format lib/
-      - run: flutter analyze
+      - name: Setup Flutter 
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '2.2.3'
+          
+      - name: Install flutter dependencies
+        run: flutter pub get
+      - name: Format files
+        run: flutter format lib/
+      - name: Analyze code
+        run: flutter analyze
