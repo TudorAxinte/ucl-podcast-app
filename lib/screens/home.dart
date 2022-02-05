@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
+import 'package:podcasts_app/screens/home_tabs/library.dart';
 import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
@@ -22,7 +23,8 @@ class HomeState extends State<HomePage> {
     return Consumer2<HomeProvider, AnalyticsProvider>(
       builder: (context, home, analytics, child) {
         return Scaffold(
-          backgroundColor: Theme.of(context).backgroundColor,
+          backgroundColor:
+              home.page == LibraryPage() ? Theme.of(context).primaryColor : Theme.of(context).backgroundColor,
           body: AnimatedSwitcher(
             duration: Duration(milliseconds: 300),
             child: home.page,

@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:podcasts_app/models/podcast.dart';
 
 class NetworkDataProvider with ChangeNotifier {
@@ -10,6 +11,8 @@ class NetworkDataProvider with ChangeNotifier {
   factory NetworkDataProvider() {
     return _singleton;
   }
+
+  final String apiToken = dotenv.get("API_KEY");
 
   List<Podcast> _podcasts = [];
 

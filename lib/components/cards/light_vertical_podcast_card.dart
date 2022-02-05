@@ -37,8 +37,8 @@ class LightVerticalPodcastCard extends StatelessWidget {
                     height: 5,
                   ),
                   Container(
-                    height: 5,
-                    color: Colors.grey,
+                    height: 150,
+                    color: Colors.white,
                   ),
 
                 ],

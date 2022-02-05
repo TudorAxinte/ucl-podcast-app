@@ -20,7 +20,7 @@ jobs:
       - name: Install flutter dependencies
         run: flutter pub get
 
-      - name: Install flutter dependencies
+      - name: Build release artifact
         run: flutter build apk
 
       - name: Upload artifact

@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -15,29 +17,34 @@ extension ex on Section {
 }
 
 class LibraryPage extends StatelessWidget {
+
+  final Random _rand = Random();
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).primaryColor,
-      body: Transform(
-        transform: Matrix4.translationValues(0, 20, 0),
-        child: SingleChildScrollView(
-          child: Column(
-            children: Section.values
-                .asMap()
-                .map((index, section) => MapEntry(
-                      index,
-                      Transform(
-                        transform: Matrix4.translationValues(0, -20.0 * index, 0),
-                        child: _section(context, index),
-                      ),
-                    ))
-                .values
-                .toList(),
+    return Container(
+        color: Theme.of(context).primaryColor,
+        child: Transform(
+          transform: Matrix4.translationValues(0, 20, 0),
+          child: Container(
+            color: Theme.of(context).primaryColor,
+            child: SingleChildScrollView(
+              child: Column(
+                children: Section.values
+                    .asMap()
+                    .map((index, section) => MapEntry(
+                          index,
+                          Transform(
+                            transform: Matrix4.translationValues(0, -20.0 * index, 0),
+                            child: _section(context, index),
+                          ),
+                        ))
+                    .values
+                    .toList(),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
+        ));
   }
 
   Widget _section(context, index) {
@@ -86,7 +93,7 @@ class LibraryPage extends StatelessWidget {
                   enableInfiniteScroll: true,
                   reverse: false,
                   autoPlay: true,
-                  autoPlayInterval: Duration(seconds: 3),
+                  autoPlayInterval: Duration(milliseconds: 1200 + _rand.nextInt(100) * 50),
                   autoPlayAnimationDuration: Duration(milliseconds: 800),
                   autoPlayCurve: Curves.fastOutSlowIn,
                   enlargeCenterPage: true,

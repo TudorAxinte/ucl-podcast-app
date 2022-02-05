@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:podcasts_app/providers/analytics_provider.dart';
@@ -64,6 +65,7 @@ Future<void> initializeDependencies() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
+  await dotenv.load(fileName: "secrets.env");
   await Hive.initFlutter();
   await Firebase.initializeApp();
 }
