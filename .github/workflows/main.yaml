@@ -1,4 +1,4 @@
-name: Flutter Analyze
+name: Compilation & Code Analysis
 on:
   push:
 
@@ -18,3 +18,5 @@ jobs:
         run: flutter format lib/
       - name: Analyze code
         run: flutter analyze
+      - name: Run test suite
+        run: flutter test
