@@ -33,20 +33,22 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver" >
-                <intent-filter>
-                    <action android:name="android.intent.action.MEDIA_BUTTON" />
-                </intent-filter>
-            </receiver>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+
 
        <service android:name="com.ryanheise.audioservice.AudioService">
            <intent-filter>
                <action android:name="android.media.browse.MediaBrowserService" />
            </intent-filter>
        </service>
+
+       <receiver android:name="com.ryanheise.audioservice.MediaButtonReceiver" >
+           <intent-filter>
+               <action android:name="android.intent.action.MEDIA_BUTTON" />
+           </intent-filter>
+       </receiver>
 
         <meta-data
             android:name="flutterEmbedding"

@@ -30,7 +30,10 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchPodcasts() async {
     await Future.delayed(Duration(seconds: 1));
     _podcasts.addAll(
-      Iterable.generate(20, (e) => Podcast.dummy()),
+      Iterable.generate(
+        20,
+        (e) => Podcast.dummy(),
+      ),
     );
   }
 }
