@@ -22,7 +22,6 @@ linter:
     - await_only_futures
     - camel_case_extensions
     - camel_case_types
-    - curly_braces_in_flow_control_structures
     - empty_catches
     - file_names
     - hash_and_equals

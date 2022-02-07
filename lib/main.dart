@@ -1,9 +1,9 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:podcasts_app/providers/analytics_provider.dart';
@@ -23,6 +23,7 @@ void main() async {
 class PodcastApp extends StatelessWidget {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _storage = FirebaseFirestore.instance;
+  final FirebaseRemoteConfig _config = FirebaseRemoteConfig.instance;
 
   @override
   Widget build(BuildContext context) {
@@ -34,7 +35,7 @@ class PodcastApp extends StatelessWidget {
       providers: [
         Provider<AnalyticsProvider>(create: (_) => AnalyticsProvider()),
         ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
-        ChangeNotifierProvider<NetworkDataProvider>(create: (_) => NetworkDataProvider()..init()),
+        ChangeNotifierProvider<NetworkDataProvider>(create: (_) => NetworkDataProvider()..init(_config)),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(_auth, _storage)),
         ChangeNotifierProxyProvider<AuthProvider, UsersProvider>(
           create: (_) => UsersProvider(_storage),
@@ -65,7 +66,6 @@ Future<void> initializeDependencies() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
-  await dotenv.load(fileName: "secrets.env");
   await Hive.initFlutter();
   await Firebase.initializeApp();
 }

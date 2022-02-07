@@ -1,7 +1,7 @@
 import 'dart:async';
+import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:podcasts_app/models/podcast.dart';
 
 class NetworkDataProvider with ChangeNotifier {
@@ -14,10 +14,9 @@ class NetworkDataProvider with ChangeNotifier {
   }
 
   final String apiBaseUrl = "https://listen-api.listennotes.com/api/v2";
-  final Map<String, String> requestHeader = {
-    "App": "Podcasting Together",
-    "X-ListenAPI-Key": "${dotenv.get("API_KEY")}"
-  };
+
+  late final FirebaseRemoteConfig _config;
+  late final Map<String, String> requestHeader;
 
   List<Podcast> _podcasts = [];
 
@@ -27,10 +26,19 @@ class NetworkDataProvider with ChangeNotifier {
 
   bool get finishedLoading => _finishedLoading;
 
-  Future<void> init() async {
+  Future<void> init(FirebaseRemoteConfig config) async {
+    _config = config;
+    await _config.fetchAndActivate();
+
+    requestHeader = {
+      "App": "Podcasting Together",
+      "X-ListenAPI-Key": _config.getString("API_KEY"),
+    };
+
     await Future.wait([
       fetchBestPodcasts(),
     ]);
+
     _finishedLoading = true;
     notifyListeners();
   }

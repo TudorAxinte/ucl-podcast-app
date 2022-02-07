@@ -109,8 +109,8 @@ class FriendsState extends State<FriendsPage> {
       key: key,
       shrinkWrap: true,
       children: [
-        ...friendRequests.map(
-            (id) => users.getById(id) != null ? friendCard(context, users.getById(id)!, isRequest: true) : SizedBox()),
+        ...friendRequests.map((id) =>
+            users.getById(id) != null ? {friendCard(context, users.getById(id)!, isRequest: true)} : SizedBox()),
         ...friends.map((id) => users.getById(id) != null ? friendCard(context, users.getById(id)!) : SizedBox()),
       ],
     );

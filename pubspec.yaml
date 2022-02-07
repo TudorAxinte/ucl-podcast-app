@@ -19,6 +19,7 @@ dependencies:
   firebase_storage: ^10.0.1
   firebase_analytics: ^8.2.0
   firebase_auth: ^3.0.1
+  firebase_remote_config: ^2.0.0
   cloud_firestore: ^2.4.0
 
   # Login
@@ -28,7 +29,6 @@ dependencies:
   hive: ^2.0.4
   hive_flutter: ^1.1.0
   cached_network_image: ^3.1.0
-  flutter_dotenv: ^5.0.2
 
   # Audio
   just_audio: ^0.9.18
@@ -64,7 +64,6 @@ flutter_icons:
 
 flutter:
   assets:
-    - secrets.env
     - assets/
     - assets/icons/
 
