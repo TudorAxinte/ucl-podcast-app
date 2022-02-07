@@ -13,7 +13,7 @@ The application is a part requirement for the BSc Degree in Computer Science at 
 
 ## Build status
 
-[![Build CI/CD](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/android_ci.yaml/badge.svg)](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/android_ci.yaml) [![Flutter Analyze](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/main.yaml/badge.svg?branch=dev)](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/main.yaml)
+[![Build & Deploy CI/CD](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/build_and_deploy.yaml/badge.svg)](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/build_and_deploy.yaml) [![Code Analysis & Tests](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/analyze_and_test.yaml/badge.svg)](https://github.com/TudorAxinte/ucl-podcast-app/actions/workflows/analyze_and_test.yaml)
 
 ####  Latest release
 
