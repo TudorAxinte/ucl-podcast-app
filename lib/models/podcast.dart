@@ -2,7 +2,7 @@ import 'dart:math';
 
 enum PodcastCategory { BUSINESS, MINDFULNESS, NEWS, TECH }
 
-extension ex on PodcastCategory {
+extension Ex on PodcastCategory {
   String get thumbnailPath {
     switch (this) {
       case PodcastCategory.BUSINESS:
@@ -66,11 +66,14 @@ class Podcast {
         DateTime.utc(2022),
       );
 
+
+
+
   @override
   bool operator ==(Object other) => other is Podcast && other.title == this.title && other.id == this.id;
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode => super.hashCode + id.hashCode + title.hashCode;
 }
 
 class PodcastEpisode {
@@ -99,5 +102,5 @@ class PodcastEpisode {
   bool operator ==(Object other) => other is PodcastEpisode && other.title == this.title && other.id == this.id;
 
   @override
-  int get hashCode => super.hashCode;
+  int get hashCode => super.hashCode + id.hashCode + title.hashCode;
 }

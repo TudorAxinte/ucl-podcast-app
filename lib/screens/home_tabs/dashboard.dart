@@ -275,10 +275,11 @@ class DashboardPage extends StatelessWidget {
                           scrollDirection: Axis.vertical,
                           itemCount: podcasts.length + 1,
                           itemBuilder: (_, index) {
-                            if (index == podcasts.length)
+                            if (index == podcasts.length) {
                               return SizedBox(
                                 height: 50,
                               );
+                            }
                             final podcast = podcasts[index];
                             return MaterialButton(
                               onPressed: () {

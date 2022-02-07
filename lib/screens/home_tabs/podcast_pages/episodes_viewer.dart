@@ -76,12 +76,13 @@ class EpisodesViewer extends StatelessWidget {
                 valueListenable: _searchQuery,
                 builder: (_, searched, __) {
                   final episodes = List.from(podcast.episodes);
-                  if (searched.isNotEmpty)
+                  if (searched.isNotEmpty) {
                     episodes.removeWhere(
                       (element) => !element.title.toLowerCase().contains(
                             searched.toLowerCase(),
                           ),
                     );
+                  }
 
                   return ListView.builder(
                       shrinkWrap: true,

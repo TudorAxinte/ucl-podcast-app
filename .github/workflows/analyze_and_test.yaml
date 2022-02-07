@@ -1,4 +1,4 @@
-name: Compilation & Code Analysis
+name: Code Analysis & Tests
 on:
   push:
 

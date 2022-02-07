@@ -1,4 +1,4 @@
-extension dateExtension on DateTime {
+extension DateExtension on DateTime {
   String get formattedString {
     final day = this.day;
     final year = this.year;

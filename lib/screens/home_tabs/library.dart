@@ -1,5 +1,4 @@
 import 'dart:math';
-
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
@@ -11,7 +10,7 @@ import '../../util/extensions.dart';
 
 enum Section { RECOMMENDED, TOP_SHOWS, RECENTLY_ADDED, TRENDING, NEWS, DOCUMENTARIES, COMEDY }
 
-extension ex on Section {
+extension Ex on Section {
   String get title =>
       this.toString().split(".").last.split("_").map((word) => word.capitalize()).reduce((s1, s2) => "$s1 $s2");
 }

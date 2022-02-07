@@ -5,7 +5,7 @@ import 'package:podcasts_app/screens/home_tabs/settings.dart';
 
 enum HomeScreen { DASHBOARD, LIBRARY, SETTINGS }
 
-extension ex on HomeScreen {
+extension Ex on HomeScreen {
   Widget iconWidget({active = false}) {
     switch (this) {
       case HomeScreen.DASHBOARD:
