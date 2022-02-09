@@ -129,20 +129,12 @@ class SearchResultCard extends StatelessWidget {
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                            text: "from ",
-                            style: TextStyle(
-                              color: Colors.black38,
-                              fontSize: 12,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: result.author,
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ]),
+                          text: result.author,
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 12,
+                          ),
+                        ),
                       ),
                     ],
                   ),

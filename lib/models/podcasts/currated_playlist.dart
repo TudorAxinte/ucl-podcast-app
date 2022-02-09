@@ -2,6 +2,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/search_reslut.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/playlist_viewer.dart';
+import 'package:podcasts_app/util/extensions.dart';
 
 class CuratedPlaylist implements SearchResult {
   final String id;
@@ -22,11 +23,11 @@ class CuratedPlaylist implements SearchResult {
         json["id"],
         json["title"],
         json["description"],
-        json["source_url"],
+        json["source_domain"],
       );
 
   @override
-  String get author => sourceUrl.replaceAll("www.", "");
+  String get author => sourceUrl.replaceAll("www.", "").capitalize();
 
   @override
   String get thumbnailUrl => _podcasts.first.thumbnailUrl;

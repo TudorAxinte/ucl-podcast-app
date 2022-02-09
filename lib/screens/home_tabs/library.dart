@@ -7,35 +7,78 @@ import 'package:podcasts_app/models/podcasts/currated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
+import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
 
 class LibraryPage extends StatelessWidget {
   final Random _rand = Random();
+  final ValueNotifier<bool> _loading = ValueNotifier(false);
+
+  Future<void> fetchMorePlaylists(NetworkDataProvider data, int page) async {
+    _loading.value = true;
+    await data.fetchCuratedPlaylists(page: page);
+    _loading.value = false;
+  }
 
   @override
   Widget build(BuildContext context) {
     final hasNotch = MediaQuery.of(context).viewPadding.top > 20;
     return Container(
       color: Theme.of(context).primaryColor,
-      child: Consumer<NetworkDataProvider>(builder: (_, data, __) {
-        final List<CuratedPlaylist> playlists = data.playlists;
-        return !data.finishedLoading
-            ? ListView.builder(
-                shrinkWrap: true,
-                itemCount: data.playlists.length,
-                itemBuilder: (context, index) {
-                  final CuratedPlaylist playlist = playlists[index];
-                  return _section(context, playlist, isDark: index % 2 == 0);
-                })
-            : SingleChildScrollView(
-                child: Column(children: [
-                  SizedBox(height: hasNotch ? 40 : 20),
-                  _loadingSection(context, true),
-                  _loadingSection(context, false),
-                  _loadingSection(context, true),
-                ]),
-              );
-      }),
+      child: Transform(
+        transform: Matrix4.translationValues(0, 20, 0),
+        child: Container(
+          color: Theme.of(context).primaryColor,
+          child: Consumer<NetworkDataProvider>(builder: (_, data, __) {
+            final List<CuratedPlaylist> playlists = data.playlists;
+            final int length = playlists.length;
+            return data.finishedLoading
+                ? ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == length)
+                        return Container(
+                          height: 100,
+                          width: 100,
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.all(20),
+                          child: ValueListenableBuilder<bool>(
+                            valueListenable: _loading,
+                            builder: (_, loading, __) => loading
+                                ? FittedBox(
+                                    child: SizedProgressCircular(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : MaterialButton(
+                                    onPressed: () => fetchMorePlaylists(data, length ~/ 10 + 1),
+                                    color: Colors.white,
+                                    minWidth: 200,
+                                    child: Text(
+                                      "Load more",
+                                      style: TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        );
+                      final CuratedPlaylist playlist = playlists[index];
+                      return _section(context, playlist, isDark: index % 2 == 0);
+                    })
+                : SingleChildScrollView(
+                    child: Column(children: [
+                      SizedBox(height: hasNotch ? 40 : 20),
+                      _loadingSection(context, true),
+                      _loadingSection(context, false),
+                      _loadingSection(context, true),
+                    ]),
+                  );
+          }),
+        ),
+      ),
     );
   }
 
