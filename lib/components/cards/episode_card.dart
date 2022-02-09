@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:shimmer/shimmer.dart';
 import '../../util/extensions.dart';
@@ -15,7 +15,7 @@ class EpisodeCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(children: [
       Container(
-        height: 110,
+        height: 135,
         padding: const EdgeInsets.all(10),
         child: loading
             ? Shimmer.fromColors(
@@ -70,15 +70,15 @@ class EpisodeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
-                    width: 80,
-                    height: 80,
+                    width: 70,
+                    height: 100,
                     child: ClipRRect(
                       borderRadius: BorderRadius.all(Radius.circular(20)),
                       child: Stack(children: [
                         Positioned.fill(
                           child: CachedNetworkImage(
                             fit: BoxFit.cover,
-                            imageUrl: episode.podcast.thumbnailUrl,
+                            imageUrl: episode.thumbnailUrl,
                             placeholder: (context, url) => Container(
                               width: 100,
                               height: 100,
@@ -118,7 +118,9 @@ class EpisodeCard extends StatelessWidget {
                       ]),
                     ),
                   ),
-                  SizedBox(width: 10,),
+                  SizedBox(
+                    width: 10,
+                  ),
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -143,10 +145,12 @@ class EpisodeCard extends StatelessWidget {
                             fontSize: 18,
                           ),
                         ),
-                        SizedBox(height: 3,),
+                        SizedBox(
+                          height: 3,
+                        ),
                         Text(
                           "${episode.description}",
-                          maxLines: 2,
+                          maxLines: 3,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: Colors.black54,
@@ -154,7 +158,6 @@ class EpisodeCard extends StatelessWidget {
                             fontSize: 12,
                           ),
                         ),
-                        SizedBox(height: 3,),
                         Text(
                           episode.durationText,
                           style: TextStyle(

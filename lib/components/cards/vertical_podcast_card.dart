@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -154,7 +154,7 @@ class VerticalPodcastCard extends StatelessWidget {
                         ),
                         children: [
                           TextSpan(
-                            text: podcast.author,
+                            text: podcast.publisher,
                             style: TextStyle(
                               color: Theme.of(context).primaryColor,
                               fontSize: 12,

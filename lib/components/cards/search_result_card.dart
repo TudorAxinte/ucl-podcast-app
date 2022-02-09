@@ -1,14 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/podcasts/podcast.dart';
+import 'package:podcasts_app/models/search_reslut.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:shimmer/shimmer.dart';
 
-class PodcastCard extends StatelessWidget {
-  final Podcast podcast;
+class SearchResultCard extends StatelessWidget {
+  final SearchResult result;
   final bool loading;
 
-  PodcastCard(this.podcast, {this.loading = false});
+  SearchResultCard(this.result, {this.loading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -74,14 +74,14 @@ class PodcastCard extends StatelessWidget {
                 Container(
                   width: 80,
                   height: 80,
-                  margin: const EdgeInsets.only(right: 5),
+                  margin: const EdgeInsets.only(right: 10),
                   child: ClipRRect(
                     borderRadius: BorderRadius.all(Radius.circular(20)),
                     child: Stack(children: [
                       Positioned.fill(
                         child: CachedNetworkImage(
                           fit: BoxFit.cover,
-                          imageUrl: podcast.thumbnailUrl,
+                          imageUrl: result.thumbnailUrl,
                           placeholder: (context, url) => Container(
                             width: 100,
                             height: 100,
@@ -115,8 +115,9 @@ class PodcastCard extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "${podcast.title}",
-                        maxLines: 1,
+                        "${result.title}",
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: Colors.black,
@@ -128,14 +129,14 @@ class PodcastCard extends StatelessWidget {
                         maxLines: 1,
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                            text: "by ",
+                            text: "from ",
                             style: TextStyle(
                               color: Colors.black38,
                               fontSize: 12,
                             ),
                             children: [
                               TextSpan(
-                                text: podcast.publisher,
+                                text: result.author,
                                 style: TextStyle(
                                   color: Theme.of(context).primaryColor,
                                   fontSize: 12,
@@ -147,7 +148,7 @@ class PodcastCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(
-                  width: 5,
+                  width: 10,
                 ),
                 CircleAvatar(
                   backgroundColor: Theme.of(context).primaryColor,

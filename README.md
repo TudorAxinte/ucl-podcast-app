@@ -17,4 +17,4 @@ The application is a part requirement for the BSc Degree in Computer Science at 
 
 ####  Latest release
 
-<a href ="https://nightly.link/TudorAxinte/ucl-podcast-app/workflows/android_ci.yaml/dev/release-apk.zip"><img src = "https://static.coingecko.com/s/coingecko_logos/Download_Android_APK_2-2846c5e4a5754bfb95852c31a578b15a0ab21324e5fb3ad988b6e23fbcd5e454.svg" width="200"></img></a>
+<a href ="https://nightly.link/TudorAxinte/ucl-podcast-app/workflows/build_and_deploy.yaml/dev/release-apk.zip"><img src = "https://static.coingecko.com/s/coingecko_logos/Download_Android_APK_2-2846c5e4a5754bfb95852c31a578b15a0ab21324e5fb3ad988b6e23fbcd5e454.svg" width="200"></img></a>

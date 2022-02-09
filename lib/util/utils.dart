@@ -15,7 +15,7 @@ class SizedProgressCircular extends StatelessWidget {
       width: size,
       height: size,
       child: CircularProgressIndicator(
-        strokeWidth: 4,
+        strokeWidth: 5,
         valueColor: AlwaysStoppedAnimation<Color>(
           color ?? Theme.of(context).primaryColor,
         ),

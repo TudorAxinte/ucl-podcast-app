@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast.dart';
 
 class CategoryCard extends StatelessWidget {
   final PodcastCategory category;

@@ -4,7 +4,8 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/components/audio/player.dart';
 import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/cards/vertical_podcast_card.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/episodes_viewer.dart';
 import 'package:podcasts_app/util/utils.dart';
@@ -19,7 +20,11 @@ class PodcastViewerPage extends StatelessWidget {
 
   void fetchEpisodes() async {
     _loading.value = true;
-    await Future.delayed(Duration(seconds: 1));
+    final NetworkDataProvider data = NetworkDataProvider();
+    await Future.wait([
+      data.fetchPodcastDetails(podcast),
+      data.fetchPodcastRecommendations(podcast),
+    ]);
     _loading.value = false;
   }
 
@@ -52,12 +57,11 @@ class PodcastViewerPage extends StatelessWidget {
       extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
         child: Consumer<NetworkDataProvider>(builder: (_, data, __) {
-          final List<PodcastEpisode> episodes = podcast.episodes.take(8).toList();
           return Column(
             children: [
               Container(
                 width: size.width,
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                 alignment: Alignment.center,
                 color: Theme.of(context).primaryColor,
                 child: Column(
@@ -102,20 +106,40 @@ class PodcastViewerPage extends StatelessWidget {
                         ]),
                       ),
                     ),
+                    SizedBox(
+                      height: 10,
+                    ),
                     Text(
                       podcast.title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
+                        height: 1.1,
                         fontSize: 24,
                       ),
                     ),
+                    SizedBox(
+                      height: 2,
+                    ),
                     Text(
-                      podcast.author,
+                      podcast.description ?? "",
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.7),
+                        color: Colors.white.withOpacity(0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    Text(
+                      podcast.publisher,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
                         fontSize: 15,
                       ),
                     ),
@@ -127,6 +151,7 @@ class PodcastViewerPage extends StatelessWidget {
                       builder: (context, loading, _) => ElevatedButton(
                         style: ButtonStyle(
                           elevation: MaterialStateProperty.all(0),
+                          fixedSize: MaterialStateProperty.all(Size(150, 40)),
                           shape: MaterialStateProperty.all(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20.0),
@@ -142,7 +167,7 @@ class PodcastViewerPage extends StatelessWidget {
                                   topRadius: Radius.circular(20),
                                   context: context,
                                   builder: (_) => PodcastPlayer(
-                                    episodes.last,
+                                    podcast.episodes.last,
                                     playNext: List.from(
                                       podcast.episodes..removeAt(0),
                                     ),
@@ -175,7 +200,7 @@ class PodcastViewerPage extends StatelessWidget {
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 15,
+                                  fontSize: 14,
                                 ),
                               ),
                             ],
@@ -183,36 +208,99 @@ class PodcastViewerPage extends StatelessWidget {
                         ),
                       ),
                     ),
-                    SizedBox(height: 40),
+                    SizedBox(height: 10),
                   ],
                 ),
               ),
-              Transform(
-                transform: Matrix4.translationValues(
-                  0,
-                  -30,
-                  0,
-                ),
-                child: Container(
+              ValueListenableBuilder<bool>(
+                valueListenable: _loading,
+                builder: (context, loading, _) => Container(
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.all(Radius.circular(30)),
                     color: Colors.white,
                   ),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: loading
+                      ? Container(
+                          alignment: Alignment.center,
+                          width: size.width,
+                          height: size.height / 2,
+                          padding: const EdgeInsets.only(bottom: 100),
+                          child: SizedProgressCircular(),
+                        )
+                      : Column(
                           children: [
-                            Text(
-                              "Episodes",
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 24,
+                            SizedBox(height: 20),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Episodes",
+                                    style: TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 24,
+                                    ),
+                                  ),
+                                  InkWell(
+                                    onTap: () {
+                                      showCupertinoModalBottomSheet(
+                                        barrierColor: Colors.black,
+                                        topRadius: Radius.circular(20),
+                                        context: context,
+                                        builder: (_) => EpisodesViewer(podcast),
+                                      );
+                                    },
+                                    child: Text(
+                                      "View all",
+                                      style: TextStyle(
+                                        color: Theme.of(context).primaryColor,
+                                        fontSize: 15,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
+                            ),
+                            ValueListenableBuilder<bool>(
+                                valueListenable: _loading,
+                                builder: (context, loading, _) {
+                                  final episodes = podcast.episodes.take(8);
+                                  return ListView.builder(
+                                    shrinkWrap: true,
+                                    physics: NeverScrollableScrollPhysics(),
+                                    padding: EdgeInsets.zero,
+                                    itemCount: loading ? 8 : episodes.length,
+                                    itemBuilder: (_, index) => loading
+                                        ? EpisodeCard(
+                                            PodcastEpisode.dummy(),
+                                            loading: true,
+                                          )
+                                        : MaterialButton(
+                                            onPressed: loading
+                                                ? null
+                                                : () {
+                                                    showCupertinoModalBottomSheet(
+                                                      barrierColor: Colors.black,
+                                                      topRadius: Radius.circular(20),
+                                                      context: context,
+                                                      builder: (_) => PodcastPlayer(
+                                                        episodes.elementAt(index),
+                                                        playNext: List.from(
+                                                          podcast.episodes.sublist(index + 1),
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                            child: EpisodeCard(
+                                              episodes.elementAt(index),
+                                            ),
+                                          ),
+                                  );
+                                }),
+                            SizedBox(
+                              height: 10,
                             ),
                             InkWell(
                               onTap: () {
@@ -223,153 +311,95 @@ class PodcastViewerPage extends StatelessWidget {
                                   builder: (_) => EpisodesViewer(podcast),
                                 );
                               },
-                              child: Text(
-                                "View all",
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 15,
+                              child: Container(
+                                padding: const EdgeInsets.only(left: 30),
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "View all ${podcast.totalEpisodes} episodes ",
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                             ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+                              child: Text(
+                                "About",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.symmetric(horizontal: 30),
+                              child: Text(
+                                podcast.description ?? "Not available.",
+                                style: TextStyle(
+                                  color: Colors.black54,
+                                  height: 1.15,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            infoRow("Country", podcast.country),
+                            infoRow("Publisher", podcast.publisher),
+                            infoRow("Explicit content", podcast.explicitContent),
+                            infoRow("First episode", podcast.firstEpisodeDate),
+                            infoRow("Last episode", podcast.lastEpisodeDate),
+                            infoRow("Language", podcast.language, showDivider: false),
+                            SizedBox(
+                              height: 20,
+                            ),
+                            Container(
+                              alignment: Alignment.centerLeft,
+                              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+                              child: Text(
+                                "Related",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 24,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 290,
+                              width: size.width,
+                              child: ValueListenableBuilder<bool>(
+                                valueListenable: _loading,
+                                builder: (context, loading, _) => ListView.builder(
+                                    itemCount: 6,
+                                    scrollDirection: Axis.horizontal,
+                                    shrinkWrap: true,
+                                    itemBuilder: (_, index) {
+                                      if (index == 5) return SizedBox(width: 30);
+                                      final relatedPodcast =
+                                          loading ? Podcast.dummy() : podcast.related.elementAt(index);
+                                      return VerticalPodcastCard(
+                                        relatedPodcast,
+                                        loading: loading,
+                                      );
+                                    }),
+                              ),
+                            ),
+                            SizedBox(
+                              height: 20,
+                            ),
                           ],
                         ),
-                      ),
-                      ValueListenableBuilder<bool>(
-                        valueListenable: _loading,
-                        builder: (context, loading, _) => ListView.builder(
-                            shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
-                            padding: EdgeInsets.zero,
-                            itemCount: episodes.length,
-                            itemBuilder: (_, index) {
-                              final episode = episodes[index];
-
-                              return MaterialButton(
-                                onPressed: loading
-                                    ? null
-                                    : () {
-                                        showCupertinoModalBottomSheet(
-                                          barrierColor: Colors.black,
-                                          topRadius: Radius.circular(20),
-                                          context: context,
-                                          builder: (_) => PodcastPlayer(
-                                            episode,
-                                            playNext: List.from(
-                                              podcast.episodes.sublist(index + 1),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                child: EpisodeCard(
-                                  episode,
-                                  loading: loading,
-                                ),
-                              );
-                            }),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      InkWell(
-                        onTap: () {
-                          showCupertinoModalBottomSheet(
-                            barrierColor: Colors.black,
-                            topRadius: Radius.circular(20),
-                            context: context,
-                            builder: (_) => EpisodesViewer(podcast),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 30),
-                          alignment: Alignment.centerLeft,
-                          child: Text(
-                            "View all ${podcast.totalEpisodes} episodes ",
-                            style: TextStyle(
-                              color: Theme.of(context).primaryColor,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 5),
-                        child: Text(
-                          "About",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 30),
-                        child: Text(
-                          podcast.description,
-                          style: TextStyle(
-                            color: Colors.black54,
-                            height: 1.15,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      infoRow("Country", podcast.country),
-                      infoRow("Publisher", podcast.publisher),
-                      infoRow("Explicit content", podcast.explicitContent ? "YES" : "NO"),
-                      infoRow("First episode", podcast.firstEpisodeDate.formattedString),
-                      infoRow("Last episode", podcast.lastEpisodeDate.formattedString),
-                      infoRow("Contact", podcast.email, showDivider: false),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Container(
-                        alignment: Alignment.centerLeft,
-                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-                        child: Text(
-                          "Related",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 24,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 270,
-                        width: size.width,
-                        child: ValueListenableBuilder<bool>(
-                          valueListenable: _loading,
-                          builder: (context, loading, _) => ListView.builder(
-                              itemCount: 6,
-                              scrollDirection: Axis.horizontal,
-                              shrinkWrap: true,
-                              itemBuilder: (_, index) {
-                                if (index == 5) return SizedBox(width: 30);
-                                final relatedPodcast = loading ? Podcast.dummy() : podcast.related.elementAt(index);
-                                return VerticalPodcastCard(
-                                  relatedPodcast,
-                                  loading: loading,
-                                );
-                              }),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
                 ),
-              ),
-              SizedBox(
-                height: 30,
               ),
             ],
           );
@@ -378,51 +408,59 @@ class PodcastViewerPage extends StatelessWidget {
     );
   }
 
-  Widget infoRow(String attribute, String value, {bool showDivider = true}) => Container(
+  Widget infoRow(String attribute, value, {bool showDivider = true}) => Container(
         padding: const EdgeInsets.symmetric(horizontal: 30),
-        child: Column(
-          children: [
-            SizedBox(
-              height: 3,
-            ),
-            Row(
-              children: [
-                SizedBox(
-                  width: 5,
-                ),
-                Expanded(
-                  child: Text(
-                    attribute,
-                    textAlign: TextAlign.left,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
+        child: value == null
+            ? SizedBox()
+            : Column(
+                children: [
+                  SizedBox(
+                    height: 3,
                   ),
-                ),
-                Expanded(
-                  child: Text(
-                    value,
-                    textAlign: TextAlign.right,
-                    style: TextStyle(
-                      color: Colors.black54,
-                      fontSize: 14,
-                    ),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 5,
+                      ),
+                      Expanded(
+                        child: Text(
+                          attribute,
+                          textAlign: TextAlign.left,
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Text(
+                          value is String
+                              ? value
+                              : value is DateTime
+                                  ? value.formattedString
+                                  : value
+                                      ? "YES"
+                                      : "NO",
+                          textAlign: TextAlign.right,
+                          style: TextStyle(
+                            color: Colors.black54,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 5,
+                      ),
+                    ],
                   ),
-                ),
-                SizedBox(
-                  width: 5,
-                ),
-              ],
-            ),
-            SizedBox(height: 3),
-            if (showDivider)
-              Container(
-                height: 1,
-                color: Colors.black.withOpacity(0.2),
+                  SizedBox(height: 3),
+                  if (showDivider)
+                    Container(
+                      height: 1,
+                      color: Colors.black.withOpacity(0.2),
+                    ),
+                ],
               ),
-          ],
-        ),
       );
 }

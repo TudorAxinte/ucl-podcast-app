@@ -37,4 +37,11 @@ extension StringExtension on String {
   String capitalize() {
     return this[0].toUpperCase() + this.substring(1).toLowerCase();
   }
+
+  String get stripHtmlIfNeeded {
+    return this.replaceAll(RegExp(r'<[^>]*>|&[^;]+;'), ' ');
+  }
+
+  String get formatAsTitle =>
+      this.split(".").last.split("_").map((word) => word.capitalize()).reduce((s1, s2) => "$s1 $s2");
 }

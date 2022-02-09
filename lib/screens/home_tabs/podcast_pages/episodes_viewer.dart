@@ -3,13 +3,27 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/components/audio/player.dart';
 import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/search_box.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
+import 'package:podcasts_app/providers/network_data_provider.dart';
+import 'package:podcasts_app/util/utils.dart';
+import 'package:provider/provider.dart';
 
 class EpisodesViewer extends StatelessWidget {
   final _searchQuery = ValueNotifier("");
   final Podcast podcast;
+  final _loading = ValueNotifier(false);
 
   EpisodesViewer(this.podcast);
+
+  void fetchEpisodes() async {
+    _loading.value = true;
+    final NetworkDataProvider data = NetworkDataProvider();
+    await Future.wait([
+      data.fetchNextPodcastEpisodes(podcast),
+    ]);
+    _loading.value = false;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,11 +71,7 @@ class EpisodesViewer extends StatelessWidget {
                   ValueListenableBuilder<String>(
                     valueListenable: _searchQuery,
                     builder: (_, searched, __) => Text(
-                      searched.isEmpty
-                          ? "${podcast.episodes.length} entries"
-                          : "${podcast.episodes.where((element) => element.title.toLowerCase().contains(
-                                searched.toLowerCase(),
-                              )).length} results",
+                      searched.isEmpty ? "${podcast.totalEpisodes} entries" : "${_searchResults().length} results",
                       style: TextStyle(
                         color: Colors.blue,
                         fontSize: 15,
@@ -72,52 +82,74 @@ class EpisodesViewer extends StatelessWidget {
               ),
             ),
             SearchBox(onChanged: (value) => _searchQuery.value = value),
-            ValueListenableBuilder<String>(
-                valueListenable: _searchQuery,
-                builder: (_, searched, __) {
-                  final episodes = List.from(podcast.episodes);
-                  if (searched.isNotEmpty) {
-                    episodes.removeWhere(
-                      (element) => !element.title.toLowerCase().contains(
-                            searched.toLowerCase(),
-                          ),
-                    );
-                  }
+            Consumer<NetworkDataProvider>(
+              builder: (_, data, __) => ValueListenableBuilder<String>(
+                  valueListenable: _searchQuery,
+                  builder: (_, searched, __) {
+                    final episodes = _searchResults().toList();
+                    return AnimatedList(
+                        key: UniqueKey(),
+                        shrinkWrap: true,
+                        physics: NeverScrollableScrollPhysics(),
+                        padding: EdgeInsets.zero,
+                        initialItemCount: episodes.length,
+                        itemBuilder: (_, index, __) {
+                          final episode = episodes[index];
 
-                  return ListView.builder(
-                      shrinkWrap: true,
-                      physics: NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.zero,
-                      itemCount: episodes.length,
-                      itemBuilder: (_, index) {
-                        final episode = episodes[index];
-
-                        return MaterialButton(
-                          onPressed: () {
-                            showCupertinoModalBottomSheet(
-                              barrierColor: Colors.black,
-                              topRadius: Radius.circular(20),
-                              context: context,
-                              builder: (_) => PodcastPlayer(
-                                episode,
-                                playNext: List.from(
-                                  podcast.episodes.sublist(index + 1),
+                          return MaterialButton(
+                            onPressed: () {
+                              showCupertinoModalBottomSheet(
+                                barrierColor: Colors.black,
+                                topRadius: Radius.circular(20),
+                                context: context,
+                                builder: (_) => PodcastPlayer(
+                                  episode,
+                                  playNext: List.from(
+                                    podcast.episodes.sublist(index + 1),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
-                          child: EpisodeCard(
-                            episode,
+                              );
+                            },
+                            child: EpisodeCard(
+                              episode,
+                            ),
+                          );
+                        });
+                  }),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: _loading,
+              builder: (_, loading, __) => Padding(
+                padding: const EdgeInsets.all(20),
+                child: loading
+                    ? SizedProgressCircular()
+                    : MaterialButton(
+                        onPressed: () => fetchEpisodes(),
+                        child: Text(
+                          "Load more",
+                          style: TextStyle(
+                            color: Theme.of(context).primaryColor,
+                            fontSize: 20,
                           ),
-                        );
-                      });
-                }),
+                        ),
+                      ),
+              ),
+            ),
             SizedBox(
               height: 30,
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Iterable<PodcastEpisode> _searchResults() {
+    if (_searchQuery.value.isEmpty) return podcast.episodes;
+    final searched = _searchQuery.value.toLowerCase();
+    return podcast.episodes.where(
+      (element) =>
+          element.title.toLowerCase().contains(searched) || element.description.toLowerCase().contains(searched),
     );
   }
 }

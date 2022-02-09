@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/podcast.dart';
+import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 import 'package:podcasts_app/util/utils.dart';
 import '../../util/extensions.dart';
 
@@ -53,7 +53,7 @@ class LightEpisodeCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     text: TextSpan(
-                        text: "${episode.podcast.title} ",
+                        text: "${episode.description}\n",
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -83,7 +83,7 @@ class LightEpisodeCard extends StatelessWidget {
                   Positioned.fill(
                     child: CachedNetworkImage(
                       fit: BoxFit.cover,
-                      imageUrl: episode.podcast.thumbnailUrl,
+                      imageUrl: episode.thumbnailUrl,
                       placeholder: (context, url) => Container(
                         width: 80,
                         height: 80,
