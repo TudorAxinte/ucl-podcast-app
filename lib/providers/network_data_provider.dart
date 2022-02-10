@@ -53,7 +53,10 @@ class NetworkDataProvider with ChangeNotifier {
       "X-ListenAPI-Key": _config.getString("API_KEY"),
     };
 
-    await Future.wait([fetchBestPodcasts(), fetchCuratedPlaylists()]);
+    await Future.wait([
+      fetchBestPodcasts(),
+      fetchCuratedPlaylists(),
+    ]);
 
     _finishedLoading = true;
     notifyListeners();
@@ -61,7 +64,6 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchSearchResults(String query, {String? type}) async {
     if (type != null) query += "&type=$type";
-    print("searching for $query");
     await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: requestHeader).then(
       (response) {
         if (response.wasSuccessful) {
@@ -76,11 +78,27 @@ class NetworkDataProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<List<String>> fetchSearchSuggestions(String query) async {
+    final List<String> suggestions = [];
+    await http.get(Uri.parse("$apiBaseUrl/typeahead?q=$query"), headers: requestHeader).then(
+      (response) {
+        if (response.wasSuccessful) {
+          suggestions.addAll(
+            [
+              ...jsonDecode(response.body)["terms"].take(5),
+            ],
+          );
+        } else {
+          print("Fetching suggestions failed (${response.statusCode})");
+        }
+      },
+    );
+    return suggestions;
+  }
+
   void _processSearchResult(Map resultJson) {
     final isPodcast = resultJson["total_episodes"] != null;
     final isEpisode = resultJson["audio"] != null;
-    print(resultJson);
-
     isPodcast
         ? _processPodcastJson(resultJson)
         : isEpisode
@@ -91,7 +109,9 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchBestPodcasts() async {
     await http.get(Uri.parse("$apiBaseUrl/best_podcasts"), headers: requestHeader).then((response) {
       if (response.wasSuccessful) {
-        jsonDecode(response.body)["podcasts"].forEach((podcastJson) => _processPodcastJson(podcastJson));
+        jsonDecode(response.body)["podcasts"].forEach(
+          (podcastJson) => _processPodcastJson(podcastJson),
+        );
       } else {
         print("Fetching podcasts failed (${response.statusCode})");
       }

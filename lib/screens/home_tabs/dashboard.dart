@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +23,7 @@ import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:podcasts_app/util/extensions.dart';
 
-enum SearchFilter { ALL, PODCASTS, EPISODES, CURATED_PLAYLISTS }
+enum SearchFilter { PODCASTS, EPISODES, CURATED_PLAYLISTS, ALL }
 
 extension Ex on SearchFilter {
   Type get objectType {
@@ -53,20 +54,21 @@ extension Ex on SearchFilter {
 }
 
 class DashboardPage extends StatelessWidget {
+  final TextEditingController _controller = TextEditingController();
   final ValueNotifier<bool> _searching = ValueNotifier(false);
   final ValueNotifier<bool> _fetchingData = ValueNotifier(false);
   final ValueNotifier<String> _searchQuery = ValueNotifier("");
-  final ValueNotifier<SearchFilter> _selectedFilter = ValueNotifier(SearchFilter.ALL);
+  final ValueNotifier<SearchFilter> _selectedFilter = ValueNotifier(SearchFilter.PODCASTS);
+  final NetworkDataProvider data = NetworkDataProvider();
 
   Future<void> _fetchSearchResults() async {
     final query = _searchQuery.value;
     EasyDebounce.debounce('search', Duration(milliseconds: 300), () async {
       _fetchingData.value = true;
       if (query.isNotEmpty)
-        await NetworkDataProvider().fetchSearchResults(
-          query,
-          type: _selectedFilter.value.typeString,
-        );
+        await Future.wait([
+          data.fetchSearchResults(query, type: _selectedFilter.value.typeString),
+        ]);
       _fetchingData.value = false;
     });
   }
@@ -91,15 +93,25 @@ class DashboardPage extends StatelessWidget {
                 ? Row(
                     children: [
                       Expanded(
-                        child: SearchBox(onChanged: (value) {
-                          _searchQuery.value = value;
-                          _fetchSearchResults();
-                        }),
+                        child: SearchBox(
+                          autofocus: true,
+                            controller: _controller,
+                            typeAheadFunction: data.fetchSearchSuggestions,
+                            onSuggestionClicked: (value) {
+                              _controller.text = value;
+                              _searchQuery.value = value;
+                              _fetchSearchResults();
+                            },
+                            onChanged: (value) {
+                              _searchQuery.value = value;
+                              _fetchSearchResults();
+                            }),
                       ),
                       InkWell(
                         onTap: () {
                           _searching.value = false;
                           _searchQuery.value = "";
+                          _controller.text = "";
                         },
                         child: Text(
                           "Cancel",
