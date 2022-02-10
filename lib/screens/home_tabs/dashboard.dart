@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:easy_debounce/easy_debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/animations/fade_animation.dart';
@@ -8,15 +9,16 @@ import 'package:podcasts_app/components/cards/podcast_card.dart';
 import 'package:podcasts_app/components/cards/search_result_card.dart';
 import 'package:podcasts_app/components/search_box.dart';
 import 'package:podcasts_app/components/value_listanable_builder_2.dart';
-import 'package:podcasts_app/models/podcasts/currated_playlist.dart';
+import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
-import 'package:podcasts_app/models/search_reslut.dart';
+import 'package:podcasts_app/models/search_result.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
 import 'package:podcasts_app/util/loading.dart';
+import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
 import 'package:podcasts_app/util/extensions.dart';
 
@@ -35,12 +37,39 @@ extension Ex on SearchFilter {
         return SearchResult;
     }
   }
+
+  String? get typeString {
+    switch (this) {
+      case SearchFilter.PODCASTS:
+        return "podcast";
+      case SearchFilter.EPISODES:
+        return "episode";
+      case SearchFilter.CURATED_PLAYLISTS:
+        return "curated";
+      default:
+        return null;
+    }
+  }
 }
 
 class DashboardPage extends StatelessWidget {
   final ValueNotifier<bool> _searching = ValueNotifier(false);
+  final ValueNotifier<bool> _fetchingData = ValueNotifier(false);
   final ValueNotifier<String> _searchQuery = ValueNotifier("");
   final ValueNotifier<SearchFilter> _selectedFilter = ValueNotifier(SearchFilter.ALL);
+
+  Future<void> _fetchSearchResults() async {
+    final query = _searchQuery.value;
+    EasyDebounce.debounce('search', Duration(milliseconds: 300), () async {
+      _fetchingData.value = true;
+      if (query.isNotEmpty)
+        await NetworkDataProvider().fetchSearchResults(
+          query,
+          type: _selectedFilter.value.typeString,
+        );
+      _fetchingData.value = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,12 +91,16 @@ class DashboardPage extends StatelessWidget {
                 ? Row(
                     children: [
                       Expanded(
-                        child: SearchBox(
-                          onChanged: (value) => _searchQuery.value = value,
-                        ),
+                        child: SearchBox(onChanged: (value) {
+                          _searchQuery.value = value;
+                          _fetchSearchResults();
+                        }),
                       ),
                       InkWell(
-                        onTap: () => _searching.value = false,
+                        onTap: () {
+                          _searching.value = false;
+                          _searchQuery.value = "";
+                        },
                         child: Text(
                           "Cancel",
                           style: TextStyle(color: Theme.of(context).primaryColor),
@@ -296,7 +329,10 @@ class DashboardPage extends StatelessWidget {
                     return FlyFromLeftAnimation(
                       index * 50,
                       InkWell(
-                        onTap: () => _selectedFilter.value = filter,
+                        onTap: () {
+                          _selectedFilter.value = filter;
+                          _fetchSearchResults();
+                        },
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           margin: const EdgeInsets.only(right: 8),
@@ -326,10 +362,17 @@ class DashboardPage extends StatelessWidget {
                 final List<SearchResult> results = _searchResults(searchPool).toList();
                 return results.isEmpty
                     ? Center(
-                        child: Text(
-                          "There are no search results \n matching your criteria.\n\n",
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.black),
+                        child: ValueListenableBuilder<bool>(
+                          valueListenable: _fetchingData,
+                          builder: (_, fetching, __) => fetching
+                              ? SizedProgressCircular()
+                              : Text(
+                                  _searchQuery.value.isEmpty
+                                      ? "Search any subject and we'll \nfind something worth listening!"
+                                      : "There are no search results \n matching your criteria.\n\n",
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(color: Colors.black),
+                                ),
                         ),
                       )
                     : ListView.builder(
@@ -351,12 +394,7 @@ class DashboardPage extends StatelessWidget {
                                   context: context,
                                   builder: (_) => result.page);
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 10),
-                              child: SearchResultCard(
-                                result
-                              )
-                            ),
+                            child: Padding(padding: const EdgeInsets.only(bottom: 10), child: SearchResultCard(result)),
                           );
                         });
               }),

@@ -1,6 +1,6 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
-import 'package:podcasts_app/models/search_reslut.dart';
+import 'package:podcasts_app/models/search_result.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/playlist_viewer.dart';
 import 'package:podcasts_app/util/extensions.dart';
 
@@ -21,8 +21,8 @@ class CuratedPlaylist implements SearchResult {
 
   factory CuratedPlaylist.fromJson(Map json) => CuratedPlaylist._(
         json["id"],
-        json["title"],
-        json["description"],
+        json["title"] ?? json["title_original"],
+        json["description"] ?? json["description_original"],
         json["source_domain"],
       );
 
@@ -36,7 +36,7 @@ class CuratedPlaylist implements SearchResult {
   Widget get page => CuratedPlaylistPage(this);
 
   @override
-  int get hashCode => super.hashCode + id.hashCode + title.hashCode;
+  int get hashCode => id.hashCode + title.hashCode;
 
   @override
   bool operator ==(Object other) => other is CuratedPlaylist && other.title == this.title && other.id == this.id;

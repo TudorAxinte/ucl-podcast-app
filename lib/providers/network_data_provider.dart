@@ -4,7 +4,7 @@ import 'dart:convert';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
-import 'package:podcasts_app/models/podcasts/currated_playlist.dart';
+import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 
@@ -53,38 +53,45 @@ class NetworkDataProvider with ChangeNotifier {
       "X-ListenAPI-Key": _config.getString("API_KEY"),
     };
 
-    await Future.wait([
-      fetchBestPodcasts(),
-      fetchCuratedPlaylists()
-    ]);
+    await Future.wait([fetchBestPodcasts(), fetchCuratedPlaylists()]);
 
     _finishedLoading = true;
     notifyListeners();
   }
 
-  Future<void> fetchSearchResults(String query) async {
-    await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: requestHeader).then((response) {
-      if (response.wasSuccessful) {
-        jsonDecode(response.body)["podcasts"].forEach(
-          (podcastJson) => addPodcast(
-            Podcast.fromJson(podcastJson),
-          ),
-        );
-      } else {
-        print("Fetching podcasts failed (${response.statusCode})");
-      }
-    });
+  Future<void> fetchSearchResults(String query, {String? type}) async {
+    if (type != null) query += "&type=$type";
+    print("searching for $query");
+    await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: requestHeader).then(
+      (response) {
+        if (response.wasSuccessful) {
+          jsonDecode(response.body)["results"].forEach(
+            (resultJson) => _processSearchResult(resultJson),
+          );
+        } else {
+          print("Fetching results failed (${response.statusCode})");
+        }
+      },
+    );
     notifyListeners();
+  }
+
+  void _processSearchResult(Map resultJson) {
+    final isPodcast = resultJson["total_episodes"] != null;
+    final isEpisode = resultJson["audio"] != null;
+    print(resultJson);
+
+    isPodcast
+        ? _processPodcastJson(resultJson)
+        : isEpisode
+            ? _processPodcastEpisode(resultJson)
+            : _processCuratedPlaylistJson(resultJson);
   }
 
   Future<void> fetchBestPodcasts() async {
     await http.get(Uri.parse("$apiBaseUrl/best_podcasts"), headers: requestHeader).then((response) {
       if (response.wasSuccessful) {
-        jsonDecode(response.body)["podcasts"].forEach(
-          (podcastJson) => addPodcast(
-            Podcast.fromJson(podcastJson),
-          ),
-        );
+        jsonDecode(response.body)["podcasts"].forEach((podcastJson) => _processPodcastJson(podcastJson));
       } else {
         print("Fetching podcasts failed (${response.statusCode})");
       }
@@ -92,25 +99,29 @@ class NetworkDataProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void _processPodcastJson(Map podcastJson) => addPodcast(Podcast.fromJson(podcastJson));
+
   Future<void> fetchCuratedPlaylists({int page = 1}) async {
     await http.get(Uri.parse("$apiBaseUrl/curated_podcasts?page=$page"), headers: requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["curated_lists"].forEach(
-          (playlistJson){
-            final CuratedPlaylist playlist = CuratedPlaylist.fromJson(playlistJson);
-            addPlaylist(playlist);
-            playlistJson["podcasts"].forEach((podcastJson) {
-              final Podcast newPodcast = Podcast.fromJson(podcastJson);
-              playlist.addPodcast(newPodcast);
-              addPodcast(newPodcast);
-            });
-          }
+          (playlistJson) => _processCuratedPlaylistJson(playlistJson),
         );
       } else {
         print("Fetching playlists failed (${response.statusCode})");
       }
     });
     notifyListeners();
+  }
+
+  void _processCuratedPlaylistJson(Map playlistJson) {
+    final CuratedPlaylist playlist = CuratedPlaylist.fromJson(playlistJson);
+    addPlaylist(playlist);
+    playlistJson["podcasts"].forEach((podcastJson) {
+      final Podcast newPodcast = Podcast.fromJson(podcastJson);
+      playlist.addPodcast(newPodcast);
+      addPodcast(newPodcast);
+    });
   }
 
   Future<void> fetchPodcastDetails(Podcast podcast) async {
@@ -129,23 +140,33 @@ class NetworkDataProvider with ChangeNotifier {
     await http
         .get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}?next_episode_pub_date=${podcast.nextEpisodePubDate!}"),
             headers: requestHeader)
-        .then((response) {
-      if (response.wasSuccessful) {
-        _processPodcastDetailsResponse(podcast, jsonDecode(response.body));
-      } else {
-        print("Fetching next episodes failed (${response.statusCode})");
-      }
-    });
+        .then(
+      (response) {
+        if (response.wasSuccessful) {
+          _processPodcastDetailsResponse(podcast, jsonDecode(response.body));
+        } else {
+          print("Fetching next episodes failed (${response.statusCode})");
+        }
+      },
+    );
     notifyListeners();
   }
 
   void _processPodcastDetailsResponse(Podcast podcast, Map resultJson) {
     podcast.updateMetadata(resultJson);
-    resultJson["episodes"].forEach((episodeJson) {
-      final newEpisode = PodcastEpisode.fromJson(podcast, episodeJson);
-      podcast.addEpisode(newEpisode);
-      addEpisode(newEpisode);
-    });
+    resultJson["episodes"].forEach(
+      (episodeJson) => _processPodcastEpisode(episodeJson, podcast: podcast),
+    );
+  }
+
+  void _processPodcastEpisode(Map resultJson, {Podcast? podcast}) {
+    if (podcast == null) {
+      podcast = Podcast.fromJson(resultJson["podcast"]);
+      addPodcast(podcast);
+    }
+    final newEpisode = PodcastEpisode.fromJson(podcast, resultJson);
+    podcast.addEpisode(newEpisode);
+    addEpisode(newEpisode);
   }
 
   Future<void> fetchPodcastRecommendations(Podcast podcast) async {
@@ -167,18 +188,24 @@ class NetworkDataProvider with ChangeNotifier {
   }
 
   void addPodcast(Podcast podcast) {
-    _podcasts.add(podcast);
-    _podcastsMap[podcast.id] = podcast;
+    if (_podcastsMap[podcast.id] == null) {
+      _podcasts.add(podcast);
+      _podcastsMap[podcast.id] = podcast;
+    }
   }
 
   void addEpisode(PodcastEpisode episode) {
-    _podcastEpisodes.add(episode);
-    _podcastEpisodesMap[episode.id] = episode;
+    if (_podcastEpisodesMap[episode.id] == null) {
+      _podcastEpisodes.add(episode);
+      _podcastEpisodesMap[episode.id] = episode;
+    }
   }
 
   void addPlaylist(CuratedPlaylist playlist) {
-    _curatedPlaylists.add(playlist);
-    _curatedPlaylistsMap[playlist.id] = playlist;
+    if (_curatedPlaylistsMap[playlist.id] == null) {
+      _curatedPlaylists.add(playlist);
+      _curatedPlaylistsMap[playlist.id] = playlist;
+    }
   }
 
   void printLong(String? s) {

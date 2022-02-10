@@ -3,7 +3,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/components/cards/curated_podcast_card.dart';
-import 'package:podcasts_app/models/podcasts/currated_playlist.dart';
+import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
@@ -26,6 +26,7 @@ class LibraryPage extends StatelessWidget {
     return Container(
       color: Theme.of(context).primaryColor,
       child: Transform(
+        // Show the right color behind the bottom navigation bar
         transform: Matrix4.translationValues(0, 20, 0),
         child: Container(
           color: Theme.of(context).primaryColor,
@@ -42,7 +43,7 @@ class LibraryPage extends StatelessWidget {
                           height: 100,
                           width: 100,
                           alignment: Alignment.center,
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.only(bottom: 40, top: 20),
                           child: ValueListenableBuilder<bool>(
                             valueListenable: _loading,
                             builder: (_, loading, __) => loading

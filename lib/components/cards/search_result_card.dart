@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/models/search_reslut.dart';
+import 'package:podcasts_app/models/search_result.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:shimmer/shimmer.dart';
 

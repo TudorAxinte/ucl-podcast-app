@@ -1,6 +1,6 @@
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
-import 'package:podcasts_app/models/search_reslut.dart';
+import 'package:podcasts_app/models/search_result.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
 
 enum PodcastCategory { BUSINESS, MINDFULNESS, NEWS, TECH }
@@ -89,8 +89,8 @@ class Podcast implements SearchResult {
 
   factory Podcast.fromJson(Map json) => Podcast._(
         json["id"],
-        json["title"],
-        json["publisher"],
+        json["title"] ?? json["title_original"],
+        json["publisher"] ?? json["publisher_original"],
         json["thumbnail"],
       );
 
@@ -106,7 +106,7 @@ class Podcast implements SearchResult {
   bool operator ==(Object other) => other is Podcast && other.title == this.title && other.id == this.id;
 
   @override
-  int get hashCode => super.hashCode + id.hashCode + title.hashCode;
+  int get hashCode => id.hashCode + title.hashCode;
 
   @override
   String get author => this.publisher;
