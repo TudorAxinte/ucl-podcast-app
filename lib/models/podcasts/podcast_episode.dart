@@ -1,3 +1,4 @@
+import 'dart:collection';
 import 'dart:math';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:podcasts_app/components/audio/player.dart';
@@ -14,7 +15,15 @@ class PodcastEpisode implements SearchResult {
   final DateTime releaseDate;
   final Podcast podcast;
 
+  final Set<PodcastEpisode> _related = SplayTreeSet<PodcastEpisode>(
+        (b, a) => a.releaseDate.compareTo(b.releaseDate),
+  );
+
+  List<PodcastEpisode> get related => List.from(_related);
   String get durationText => "${(lengthInSeconds / 60).round()} min";
+
+  void addRecommendation(PodcastEpisode episode) => _related.add(episode);
+  void clearRecommendations() => _related.clear();
 
   PodcastEpisode._(
     this.id,

@@ -1,3 +1,5 @@
+import 'dart:collection';
+
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 import 'package:podcasts_app/models/search_result.dart';
@@ -53,8 +55,10 @@ class Podcast implements SearchResult {
 
   DateTime? get lastEpisodeDate => _lastEpisodeDate;
 
-  final List<Podcast> _related = [];
-  final List<PodcastEpisode> _episodes = [];
+  final Set<Podcast> _related = HashSet<Podcast>();
+  final Set<PodcastEpisode> _episodes = SplayTreeSet<PodcastEpisode>(
+    (b, a) => a.releaseDate.compareTo(b.releaseDate),
+  );
 
   int? _nextEpisodePubDate;
 

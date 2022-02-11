@@ -120,23 +120,7 @@ class VerticalPodcastCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(
-                  height: 3,
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: Text(
-                    "${podcast.description}",
-                    textAlign: TextAlign.left,
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: Colors.black54,
-                      height: 1.1,
-                      fontSize: 11,
-                    ),
-                  ),
-                ),
+
                 SizedBox(
                   height: 3,
                 ),
