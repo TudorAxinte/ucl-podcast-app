@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'dart:math';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:podcasts_app/components/audio/player.dart';
+import 'package:podcasts_app/components/audio/podcast_player.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/search_result.dart';
 
@@ -69,5 +69,5 @@ class PodcastEpisode implements SearchResult {
   String get author => this.podcast.author;
 
   @override
-  Widget get page => PodcastPlayer(this);
+  Widget get page => PodcastPlayer(podcastEpisode: this);
 }

@@ -40,6 +40,12 @@ class NetworkDataProvider with ChangeNotifier {
 
   bool _finishedLoading = false;
 
+  Map get genres => Map.from(_genres);
+
+  Map get regions => Map.from(_regions);
+
+  List get languages => List.from(_languages);
+
   List<Podcast> get podcasts => List.from(_podcasts);
 
   List<PodcastEpisode> get podcastEpisodes => List.from(_podcastEpisodes);
@@ -60,10 +66,10 @@ class NetworkDataProvider with ChangeNotifier {
     await Future.wait([
       fetchBestPodcasts(),
       fetchCuratedPlaylists(),
+      fetchGeneres(),
     ]);
 
     Future.wait([
-      fetchGeneres(),
       fetchLanguages(),
       fetchRegions(),
     ]);
@@ -187,6 +193,15 @@ class NetworkDataProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<PodcastEpisode> fetchRandomPodcastEpisode() async {
+    final response = await http.get(
+      Uri.parse("$apiBaseUrl/just_listen"),
+      headers: requestHeader,
+    );
+    if (!response.wasSuccessful) throw ("Fetching random podcast failed ${response.statusCode}");
+    return _createPodcastEpisode(jsonDecode(response.body));
+  }
+
   void _processPodcastDetailsResponse(Podcast podcast, Map resultJson) {
     podcast.updateMetadata(resultJson);
     resultJson["episodes"].forEach(
@@ -244,7 +259,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchGeneres() async {
     _genres.clear();
-    await http.get(Uri.parse("$apiBaseUrl/genres"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/genres?top_level_only=1"), headers: requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["genres"].forEach(
           (genre) => _genres[genre["id"]] = genre["name"],

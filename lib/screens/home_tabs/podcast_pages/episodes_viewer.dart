@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:podcasts_app/components/audio/player.dart';
+import 'package:podcasts_app/components/audio/podcast_player.dart';
 import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/search_box.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
@@ -103,7 +103,7 @@ class EpisodesViewer extends StatelessWidget {
                                 topRadius: Radius.circular(20),
                                 context: context,
                                 builder: (_) => PodcastPlayer(
-                                  episode,
+                                  podcastEpisode: episode,
                                   playNext: List.from(
                                     podcast.episodes.sublist(index + 1),
                                   ),

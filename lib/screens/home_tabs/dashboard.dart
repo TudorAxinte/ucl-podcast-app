@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/animations/fade_animation.dart';
 import 'package:podcasts_app/animations/fly_from_left_animation.dart';
-import 'package:podcasts_app/components/cards/category_card.dart';
-import 'package:podcasts_app/components/cards/podcast_card.dart';
+import 'package:podcasts_app/components/audio/podcast_player.dart';
+import 'package:podcasts_app/components/cards/genre_card.dart';
 import 'package:podcasts_app/components/cards/search_result_card.dart';
 import 'package:podcasts_app/components/search_box.dart';
 import 'package:podcasts_app/components/value_listanable_builder_2.dart';
@@ -17,7 +17,6 @@ import 'package:podcasts_app/models/search_result.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
-import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
 import 'package:podcasts_app/util/loading.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
@@ -94,7 +93,7 @@ class DashboardPage extends StatelessWidget {
                     children: [
                       Expanded(
                         child: SearchBox(
-                          autofocus: true,
+                            autofocus: true,
                             controller: _controller,
                             typeAheadFunction: data.fetchSearchSuggestions,
                             onSuggestionClicked: (value) {
@@ -140,178 +139,172 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _dashboard(context) {
-    return Column(
-      children: [
-        const SizedBox(
-          height: 10,
-        ),
-        Consumer<AuthProvider>(
-          builder: (_, auth, __) => Row(
-            children: [
-              SizedBox(
-                width: 30,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    FadeAnimation(
-                      2,
-                      Text(
-                        "Hi ${auth.currentUser!.username}, let's",
-                        style: TextStyle(
-                          color: Colors.black38,
-                          fontSize: 16,
+    final List _genreColors = [
+      Colors.purple,
+      Colors.orangeAccent,
+      Colors.green,
+      Colors.blue,
+      Colors.red,
+      Colors.deepPurple,
+      Colors.pinkAccent,
+      Colors.lightGreen,
+      Colors.lightBlue,
+      Colors.cyan
+    ];
+
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          const SizedBox(
+            height: 10,
+          ),
+          Consumer<AuthProvider>(
+            builder: (_, auth, __) => Row(
+              children: [
+                SizedBox(
+                  width: 30,
+                ),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FadeAnimation(
+                        2,
+                        Text(
+                          "Hi ${auth.currentUser!.username}, let's",
+                          style: TextStyle(
+                            color: Colors.black38,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
-                    ),
-                    FadeAnimation(
-                      6,
-                      RichText(
-                        text: TextSpan(
-                            text: "Podcast ",
-                            style: TextStyle(
-                              fontFamily: "Pacifico",
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 27,
-                            ),
-                            children: [
-                              TextSpan(
-                                text: "Together",
-                                style: TextStyle(
-                                  fontFamily: "Pacifico",
-                                  color: Theme.of(context).primaryColor,
-                                  fontSize: 28,
-                                ),
+                      FadeAnimation(
+                        6,
+                        RichText(
+                          text: TextSpan(
+                              text: "Podcast ",
+                              style: TextStyle(
+                                fontFamily: "Pacifico",
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 27,
                               ),
-                            ]),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 10,
-              ),
-              InkResponse(
-                onTap: () async {
-                  Provider.of<HomeProvider>(context, listen: false).switchToPage(HomeScreen.SETTINGS);
-                },
-                child: Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.white,
-                  ),
-                  child: ClipOval(
-                    child: CachedNetworkImage(
-                      fit: BoxFit.cover,
-                      imageUrl: auth.currentUser!.photoUrl,
-                      placeholder: (context, url) => Center(child: StyledProgressBar()),
-                      errorWidget: (context, url, error) => Padding(
-                        padding: const EdgeInsets.all(25),
-                        child: Icon(
-                          Icons.image_not_supported,
-                          size: 50,
-                          color: Colors.black54,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              SizedBox(
-                width: 30,
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 160,
-          margin: const EdgeInsets.only(top: 20),
-          child: ListView.builder(
-            itemCount: PodcastCategory.values.length + 1,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: (_, index) => Padding(
-              padding: const EdgeInsets.only(left: 30),
-              child: index == PodcastCategory.values.length ? SizedBox() : CategoryCard(PodcastCategory.values[index]),
-            ),
-          ),
-        ),
-        SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Popular",
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                ),
-              ),
-              Text(
-                "View all",
-                style: TextStyle(
-                  color: Theme.of(context).primaryColor,
-                  fontSize: 15,
-                ),
-              ),
-            ],
-          ),
-        ),
-        SizedBox(height: 10),
-        Expanded(
-          child: Consumer<NetworkDataProvider>(
-            builder: (_, data, __) => ListView.builder(
-              itemCount: 6,
-              shrinkWrap: true,
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemBuilder: (_, index) => Padding(
-                padding: const EdgeInsets.only(bottom: 10, left: 25, right: 25),
-                child: index == 5
-                    ? SizedBox(height: 30)
-                    : data.finishedLoading
-                        ? ElevatedButton(
-                            style: ButtonStyle(
-                                elevation: MaterialStateProperty.all(0),
-                                shape: MaterialStateProperty.all(
-                                  RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20.0),
+                              children: [
+                                TextSpan(
+                                  text: "Together",
+                                  style: TextStyle(
+                                    fontFamily: "Pacifico",
+                                    color: Theme.of(context).primaryColor,
+                                    fontSize: 28,
                                   ),
                                 ),
-                                padding: MaterialStateProperty.all(EdgeInsets.zero)),
-                            onPressed: () {
-                              showCupertinoModalBottomSheet(
-                                barrierColor: Colors.black,
-                                topRadius: Radius.circular(20),
-                                context: context,
-                                builder: (_) => PodcastViewerPage(
-                                  Podcast.dummy(),
-                                ),
-                              );
-                            },
-                            child: Ink(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(20.0),
-                                ),
-                              ),
-                              child: PodcastCard(Podcast.dummy()),
-                            ),
-                          )
-                        : PodcastCard(Podcast.dummy(), loading: true),
-              ),
+                              ]),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+                InkResponse(
+                  onTap: () async {
+                    Provider.of<HomeProvider>(context, listen: false).switchToPage(HomeScreen.SETTINGS);
+                  },
+                  child: Container(
+                    width: 60,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                    ),
+                    child: ClipOval(
+                      child: CachedNetworkImage(
+                        fit: BoxFit.cover,
+                        imageUrl: auth.currentUser!.photoUrl,
+                        placeholder: (context, url) => Center(child: StyledProgressBar()),
+                        errorWidget: (context, url, error) => Padding(
+                          padding: const EdgeInsets.all(25),
+                          child: Icon(
+                            Icons.image_not_supported,
+                            size: 50,
+                            color: Colors.black54,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 30,
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          SizedBox(height: 20),
+          Consumer<NetworkDataProvider>(builder: (_, data, __) {
+            final Map genres = data.genres;
+            final loading = !data.finishedLoading;
+            return GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              itemCount: loading ? 21 : genres.length,
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 1,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemBuilder: (context, index) {
+                if (loading) {
+                  return GenreCard("", Colors.grey, loading: true);
+                } else {
+                  final id = genres.keys.elementAt(index);
+                  final name = genres[id];
+                  return GenreCard(
+                    name,
+                    index < _genreColors.length ? _genreColors[index] : _genreColors[index % _genreColors.length],
+                  );
+                }
+              },
+            );
+          }),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+            child: Row(
+              children: [
+                Text(
+                  "Still undecided?",
+                  style: TextStyle(fontSize: 16, color: Colors.black54),
+                ),
+                Spacer(),
+                InkWell(
+                  child: Text(
+                    "Play a random episode.",
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  onTap: () {
+                    showCupertinoModalBottomSheet(
+                      barrierColor: Colors.black,
+                      topRadius: Radius.circular(20),
+                      context: context,
+                      builder: (_) => PodcastPlayer(),
+                    );
+                  },
+                )
+              ],
+            ),
+          ),
+          SizedBox(
+            height: 20,
+          ),
+        ],
+      ),
     );
   }
 
@@ -401,10 +394,11 @@ class DashboardPage extends StatelessWidget {
                           return MaterialButton(
                             onPressed: () {
                               showCupertinoModalBottomSheet(
-                                  barrierColor: Colors.black,
-                                  topRadius: Radius.circular(20),
-                                  context: context,
-                                  builder: (_) => result.page);
+                                barrierColor: Colors.black,
+                                topRadius: Radius.circular(20),
+                                context: context,
+                                builder: (_) => result.page,
+                              );
                             },
                             child: Padding(padding: const EdgeInsets.only(bottom: 10), child: SearchResultCard(result)),
                           );

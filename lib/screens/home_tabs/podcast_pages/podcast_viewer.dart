@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
-import 'package:podcasts_app/components/audio/player.dart';
+import 'package:podcasts_app/components/audio/podcast_player.dart';
 import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/cards/vertical_podcast_card.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
@@ -167,7 +167,7 @@ class PodcastViewerPage extends StatelessWidget {
                                   topRadius: Radius.circular(20),
                                   context: context,
                                   builder: (_) => PodcastPlayer(
-                                    podcast.episodes.last,
+                                    podcastEpisode: podcast.episodes.last,
                                     playNext: List.from(
                                       podcast.episodes..removeAt(0),
                                     ),
@@ -286,7 +286,7 @@ class PodcastViewerPage extends StatelessWidget {
                                                       topRadius: Radius.circular(20),
                                                       context: context,
                                                       builder: (_) => PodcastPlayer(
-                                                        episodes.elementAt(index),
+                                                        podcastEpisode: episodes.elementAt(index),
                                                         playNext: List.from(
                                                           podcast.episodes.sublist(index + 1),
                                                         ),
