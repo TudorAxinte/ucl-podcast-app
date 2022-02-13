@@ -84,15 +84,13 @@ class DashboardPage extends StatelessWidget {
     _fetchingData.value = false;
   }
 
-  Future<void> _searchBestPodcastsByLanguage(String language) async {
+  Future<void> _searchBestPodcastsByParameters() async {
     _fetchingData.value = true;
-    await data.fetchBestPodcasts(language: language);
-    _fetchingData.value = false;
-  }
-
-  Future<void> _searchBestPodcastsByRegion(String region) async {
-    _fetchingData.value = true;
-    await data.fetchBestPodcasts(region: region);
+    await data.fetchBestPodcasts(
+      language: _selectedLanguage.value,
+      genreId: _selectedGenre.value,
+      region: _selectedRegion.value,
+    );
     _fetchingData.value = false;
   }
 
@@ -400,12 +398,7 @@ class DashboardPage extends StatelessWidget {
                             selected == null ? Parameter.GENRE.toString().formatAsTitle : data.genres[selected]!,
                             ["Any genre", ...data.genres.values],
                             (int index) {
-                              if (index == 0) {
-                                _selectedGenre.value = null;
-                              } else {
-                                _selectedGenre.value = data.genres.keys.elementAt(index - 1);
-                                _searchBestPodcastsByGenre(_selectedGenre.value!);
-                              }
+                              _selectedGenre.value = index == 0 ? null : data.genres.keys.elementAt(index - 1);
                             },
                           ),
                         ),
@@ -419,12 +412,8 @@ class DashboardPage extends StatelessWidget {
                             selected == null ? Parameter.LANGUAGE.toString().formatAsTitle : selected,
                             ["Any language", ...data.languages],
                             (int index) {
-                              if (index == 0) {
-                                _selectedLanguage.value = null;
-                              } else {
-                                _selectedLanguage.value = data.languages.elementAt(index - 1);
-                                _searchBestPodcastsByLanguage(_selectedLanguage.value!);
-                              }
+                              _selectedLanguage.value =
+                                  index == 0 ? null : _selectedLanguage.value = data.languages.elementAt(index - 1);
                             },
                           ),
                         ),
@@ -438,12 +427,8 @@ class DashboardPage extends StatelessWidget {
                             selected == null ? Parameter.REGION.toString().formatAsTitle : data.regions[selected]!,
                             ["Any region", ...data.regions.values],
                             (int index) {
-                              if (index == 0) {
-                                _selectedRegion.value = null;
-                              } else {
-                                _selectedRegion.value = data.regions.keys.elementAt(index - 1);
-                                _searchBestPodcastsByRegion(_selectedRegion.value!);
-                              }
+                              _selectedRegion.value =
+                                  index == 0 ? null : _selectedRegion.value = data.regions.keys.elementAt(index - 1);
                             },
                           ),
                         ),
@@ -585,6 +570,7 @@ class DashboardPage extends StatelessWidget {
                         itemBuilder: (_, index) => ListTile(
                           onTap: () {
                             onSelect(index);
+                            if (index != 0) _searchBestPodcastsByParameters();
                             Navigator.of(context).pop();
                           },
                           title: Text(

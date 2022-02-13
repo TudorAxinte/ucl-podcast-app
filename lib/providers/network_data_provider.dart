@@ -120,10 +120,9 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchBestPodcasts({int? genreId, String? region, String? language}) async {
     String query = "/best_podcasts?";
-    if (genreId != null) query += "genre_id=$genreId";
-    if (region != null) query += "publisher_region=$region";
+    if (genreId != null) query += "genre_id=$genreId&&";
+    if (region != null) query += "publisher_region=$region&&";
     if (language != null) query += "language=$language";
-    print(query);
     await http.get(Uri.parse("$apiBaseUrl/$query"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["podcasts"].forEach(
