@@ -33,6 +33,7 @@ class Podcast implements SearchResult {
   final String thumbnailUrl;
   final String publisher;
 
+  final Set<int> _genres = HashSet();
   String? _language;
   String? _country;
   String? _description;
@@ -64,6 +65,8 @@ class Podcast implements SearchResult {
 
   int? get nextEpisodePubDate => _nextEpisodePubDate;
 
+  List<int> get genresIds => List.from(_genres);
+
   List<PodcastEpisode> get episodes => List.from(_episodes);
 
   Iterable<Podcast> get related => List.from(_related);
@@ -89,6 +92,7 @@ class Podcast implements SearchResult {
     _nextEpisodePubDate = json["next_episode_pub_date"];
     _firstEpisodeDate = DateTime.fromMillisecondsSinceEpoch(json["earliest_pub_date_ms"]);
     _lastEpisodeDate = DateTime.fromMillisecondsSinceEpoch(json["latest_pub_date_ms"]);
+    if (json["genre_ids"] != null) for (int genreId in json["genre_ids"]) _genres.add(genreId);
   }
 
   factory Podcast.fromJson(Map json) => Podcast._(

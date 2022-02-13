@@ -29,7 +29,6 @@ class SettingsPage extends StatelessWidget {
               padding: EdgeInsets.symmetric(vertical: hasNotch ? 40 : 20),
               decoration: BoxDecoration(
                 color: Colors.white,
-
               ),
               child: Column(
                 children: [
@@ -72,7 +71,10 @@ class SettingsPage extends StatelessWidget {
                   ),
                   InkResponse(
                     onTap: () async {
-                      final result = await showDialogBox(context, ImagePicker(), 200.0, size.width * 0.5);
+                      final result = await showDialogBox(
+                        context,
+                        ImagePicker(),
+                      );
                       if (result != null) {
                         await auth.changeProfilePicture(result);
                       }

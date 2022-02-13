@@ -24,27 +24,26 @@ class NetworkDataProvider with ChangeNotifier {
   final String apiBaseUrl = "https://listen-api.listennotes.com/api/v2";
 
   late final FirebaseRemoteConfig _config;
-  late final Map<String, String> requestHeader;
-
+  late final Map<String, String> _requestHeader;
   final Map<int, String> _genres = HashMap();
   final Map<String, String> _regions = HashMap();
   final Set<String> _languages = Set();
-
   final Set<Podcast> _podcasts = HashSet<Podcast>();
   final Map<String, Podcast> _podcastsMap = HashMap();
   final Set<CuratedPlaylist> _curatedPlaylists = HashSet<CuratedPlaylist>();
   final Map<String, CuratedPlaylist> _curatedPlaylistsMap = HashMap();
-  final Set<PodcastEpisode> _podcastEpisodes =
-      SplayTreeSet<PodcastEpisode>((b, a) => a.releaseDate.compareTo(b.releaseDate));
   final Map<String, PodcastEpisode> _podcastEpisodesMap = HashMap();
+  final Set<PodcastEpisode> _podcastEpisodes = SplayTreeSet<PodcastEpisode>(
+    (b, a) => a.releaseDate.compareTo(b.releaseDate),
+  );
 
   bool _finishedLoading = false;
 
-  Map get genres => Map.from(_genres);
+  Map<int, String> get genres => Map.from(_genres);
 
-  Map get regions => Map.from(_regions);
+  Map<String, String> get regions => Map.from(_regions);
 
-  List get languages => List.from(_languages);
+  List<String> get languages => List.from(_languages);
 
   List<Podcast> get podcasts => List.from(_podcasts);
 
@@ -58,7 +57,7 @@ class NetworkDataProvider with ChangeNotifier {
     _config = config;
     await _config.fetchAndActivate();
 
-    requestHeader = {
+    _requestHeader = {
       "App": "Podcasting Together",
       "X-ListenAPI-Key": _config.getString("API_KEY"),
     };
@@ -67,9 +66,6 @@ class NetworkDataProvider with ChangeNotifier {
       fetchBestPodcasts(),
       fetchCuratedPlaylists(),
       fetchGeneres(),
-    ]);
-
-    Future.wait([
       fetchLanguages(),
       fetchRegions(),
     ]);
@@ -80,7 +76,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchSearchResults(String query, {String? type}) async {
     if (type != null) query += "&type=$type";
-    await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: requestHeader).then(
+    await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: _requestHeader).then(
       (response) {
         if (response.wasSuccessful) {
           jsonDecode(response.body)["results"].forEach(
@@ -106,7 +102,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<List<String>> fetchSearchSuggestions(String query) async {
     final List<String> suggestions = [];
-    await http.get(Uri.parse("$apiBaseUrl/typeahead?q=$query"), headers: requestHeader).then(
+    await http.get(Uri.parse("$apiBaseUrl/typeahead?q=$query"), headers: _requestHeader).then(
       (response) {
         if (response.wasSuccessful) {
           suggestions.addAll(
@@ -122,11 +118,19 @@ class NetworkDataProvider with ChangeNotifier {
     return suggestions;
   }
 
-  Future<void> fetchBestPodcasts() async {
-    await http.get(Uri.parse("$apiBaseUrl/best_podcasts"), headers: requestHeader).then((response) {
+  Future<void> fetchBestPodcasts({int? genreId, String? region, String? language}) async {
+    String query = "/best_podcasts?";
+    if (genreId != null) query += "genre_id=$genreId";
+    if (region != null) query += "publisher_region=$region";
+    if (language != null) query += "language=$language";
+    print(query);
+    await http.get(Uri.parse("$apiBaseUrl/$query"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["podcasts"].forEach(
-          (podcastJson) => _createPodcast(podcastJson),
+          (podcastJson) {
+            final newPodcast = _createPodcast(podcastJson);
+            newPodcast.updateMetadata(podcastJson);
+          },
         );
       } else {
         print("Fetching podcasts failed (${response.statusCode})");
@@ -142,7 +146,7 @@ class NetworkDataProvider with ChangeNotifier {
   }
 
   Future<void> fetchCuratedPlaylists({int page = 1}) async {
-    await http.get(Uri.parse("$apiBaseUrl/curated_podcasts?page=$page"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/curated_podcasts?page=$page"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["curated_lists"].forEach(
           (playlistJson) => _createCuratedPlaylist(playlistJson),
@@ -167,7 +171,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchPodcastDetails(Podcast podcast) async {
     podcast.clearEpisodes();
-    await http.get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         _processPodcastDetailsResponse(podcast, jsonDecode(response.body));
       } else {
@@ -180,7 +184,7 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchNextPodcastEpisodes(Podcast podcast) async {
     await http
         .get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}?next_episode_pub_date=${podcast.nextEpisodePubDate!}"),
-            headers: requestHeader)
+            headers: _requestHeader)
         .then(
       (response) {
         if (response.wasSuccessful) {
@@ -196,7 +200,7 @@ class NetworkDataProvider with ChangeNotifier {
   Future<PodcastEpisode> fetchRandomPodcastEpisode() async {
     final response = await http.get(
       Uri.parse("$apiBaseUrl/just_listen"),
-      headers: requestHeader,
+      headers: _requestHeader,
     );
     if (!response.wasSuccessful) throw ("Fetching random podcast failed ${response.statusCode}");
     return _createPodcastEpisode(jsonDecode(response.body));
@@ -223,7 +227,7 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchPodcastRecommendations(Podcast podcast) async {
     podcast.clearRecommendations();
     await http
-        .get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}/recommendations"), headers: requestHeader)
+        .get(Uri.parse("$apiBaseUrl/podcasts/${podcast.id}/recommendations"), headers: _requestHeader)
         .then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["recommendations"].forEach(
@@ -241,7 +245,7 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchEpisodeRecommendations(PodcastEpisode episode) async {
     episode.clearRecommendations();
     await http
-        .get(Uri.parse("$apiBaseUrl/podcasts/${episode.id}/recommendations"), headers: requestHeader)
+        .get(Uri.parse("$apiBaseUrl/podcasts/${episode.id}/recommendations"), headers: _requestHeader)
         .then((response) {
       if (response.wasSuccessful) {
         print(response.body);
@@ -259,7 +263,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchGeneres() async {
     _genres.clear();
-    await http.get(Uri.parse("$apiBaseUrl/genres?top_level_only=1"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/genres?top_level_only=1"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["genres"].forEach(
           (genre) => _genres[genre["id"]] = genre["name"],
@@ -273,7 +277,7 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchRegions() async {
     _regions.clear();
-    await http.get(Uri.parse("$apiBaseUrl/regions"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/regions"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         _regions.addAll(
           Map<String, String>.from(jsonDecode(response.body)["regions"]),
@@ -287,13 +291,12 @@ class NetworkDataProvider with ChangeNotifier {
 
   Future<void> fetchLanguages() async {
     _languages.clear();
-    await http.get(Uri.parse("$apiBaseUrl/languages"), headers: requestHeader).then((response) {
+    await http.get(Uri.parse("$apiBaseUrl/languages"), headers: _requestHeader).then((response) {
       if (response.wasSuccessful) {
         _languages.addAll(
-          List<String>.from(
-            jsonDecode(response.body)["languages"],
-          ),
+          List<String>.from(jsonDecode(response.body)["languages"]),
         );
+        _languages.remove("Any language");
       } else {
         print("Fetching languages failed (${response.statusCode})");
       }

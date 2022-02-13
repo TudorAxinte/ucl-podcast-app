@@ -115,7 +115,7 @@ Function showCustomBottomSheet(BuildContext context, Widget body, {minHeight, ma
               ConstrainedBox(constraints: BoxConstraints(minHeight: minHeight, maxHeight: maxHeight), child: body),
         );
 
-Future<T?> showDialogBox<T>(BuildContext context, Widget body, height, width) => showDialog(
+Future<T?> showDialogBox<T>(BuildContext context, Widget body) => showDialog(
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(10.0))),
