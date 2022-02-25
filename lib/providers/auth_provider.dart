@@ -11,28 +11,32 @@ import '../models/app_user.dart';
 class AuthProvider with ChangeNotifier {
   final FirebaseAuth _auth;
   final FirebaseFirestore _storage;
+
   AppUser? _currentUser;
 
   AuthProvider(this._auth, this._storage);
 
   AppUser? get currentUser => _currentUser;
 
+  DocumentReference? get _currentUserRef =>
+      isUserLoggedIn ? _storage.collection("users").doc(_auth.currentUser!.uid)
+          : null;
+
   bool get isUserLoggedIn => _currentUser != null;
+
 
   Future<void> init({AppUser? user}) async {
     user != null
         ? _currentUser = user
         : _auth.currentUser == null
-            ? _currentUser = null
-            : _currentUser = AppUser.fromCredentials(_auth.currentUser!);
+        ? _currentUser = null
+        : _currentUser = AppUser.fromCredentials(_auth.currentUser!);
 
     if (_currentUser != null) await _fetchAuthServerData();
   }
 
   Future<void> _fetchAuthServerData() async {
-    final usersRef = _storage.collection('users');
-    final userId = _auth.currentUser!.uid;
-    await usersRef.doc(userId).get().then((value) {
+    await _currentUserRef!.get().then((value) {
       _currentUser!.updateRegisterData(
         DateTime.parse(value.get("register_timestamp")),
       );
@@ -57,23 +61,20 @@ class AuthProvider with ChangeNotifier {
       final userCredentials = await _auth.signInWithCredential(credential);
       if (userCredentials.user != null) {
         if (userCredentials.user!.email != null) {
-          if (await _isEmailAlreadyRegistered()) {
+          if (await _isEmailAlreadyRegistered(userCredentials.user!.email!)) {
             await init();
           } else {
             await _auth.currentUser?.updateDisplayName(signInAccount.displayName ?? '');
             await _auth.currentUser?.updatePhotoURL(signInAccount.photoUrl ?? '');
 
-            final usersRef = _storage.collection('users');
-            final userId = _auth.currentUser!.uid;
-
             final Map<String, dynamic> data = {
-              "id": userId,
+              "id": _auth.currentUser!.uid,
               "name": signInAccount.displayName,
               "email": signInAccount.email,
               "photoUrl": signInAccount.photoUrl,
               "register_timestamp": DateTime.now().toString()
             };
-            await usersRef.doc(userId).set(data);
+            await _currentUserRef!.set(data);
             await init();
           }
         }
@@ -83,26 +84,17 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> register(String name, String email, String password, {String? referralCode}) async {
-    final usersRef = _storage.collection('users');
-    if (referralCode != null) {
-      final ref = usersRef.doc(referralCode);
-      final referrer = await ref.get();
-      if (!referrer.exists) throw ("The referral code entered is not valid.");
-    }
-
+  Future<void> register(String name, String email, String password) async {
     await _auth.createUserWithEmailAndPassword(email: email, password: password);
     await _auth.currentUser!.updateDisplayName(name);
 
-    final userId = _auth.currentUser!.uid;
-
     final Map<String, dynamic> data = {
-      "id": userId,
+      "id": _auth.currentUser!.uid,
       "name": name,
       "email": email,
       "register_timestamp": DateTime.now().toString()
     };
-    await usersRef.doc(userId).set(data);
+    await _currentUserRef!.set(data);
 
     await init();
     notifyListeners();
@@ -118,7 +110,7 @@ class AuthProvider with ChangeNotifier {
     final firebaseStorageRef = FirebaseStorage.instance.ref().child('users/${currentUser!.id}/avatar.jpg');
     final result = await firebaseStorageRef.putFile(await _compressImage(imageFile));
     final imageUrl = await result.ref.getDownloadURL();
-    await _storage.collection("users").doc(currentUser!.id).update({"photoUrl": imageUrl});
+    await _currentUserRef!.update({"photoUrl": imageUrl});
     currentUser!.updatePhotoUrl(imageUrl);
     notifyListeners();
   }
@@ -171,16 +163,17 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> _isEmailAlreadyRegistered() async {
+  Future<bool> _isEmailAlreadyRegistered(String email) async {
     final usersRef = _storage.collection('users');
-    final userId = _auth.currentUser!.uid;
-    final account = await usersRef.doc(userId).get();
-    return account.exists;
+    final results = await usersRef.where("email", isEqualTo: email).get();
+    return results.docs.isNotEmpty;
   }
 
-  bool get isSocialLogin => _auth.currentUser!.providerData
-      .where(
-        (element) => element.providerId == "google.com",
+  bool get isSocialLogin =>
+      _auth.currentUser!
+          .providerData
+          .where(
+            (element) => element.providerId == "google.com",
       )
-      .isNotEmpty;
+          .isNotEmpty;
 }

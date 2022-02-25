@@ -5,6 +5,7 @@ import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/components/cards/curated_podcast_card.dart';
 import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
+import 'package:podcasts_app/providers/ai_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
 import 'package:podcasts_app/util/utils.dart';
@@ -30,7 +31,7 @@ class LibraryPage extends StatelessWidget {
         transform: Matrix4.translationValues(0, 20, 0),
         child: Container(
           color: Theme.of(context).primaryColor,
-          child: Consumer<NetworkDataProvider>(builder: (_, data, __) {
+          child: Consumer2<NetworkDataProvider, AiProvider>(builder: (_, data, ai, __) {
             final List<CuratedPlaylist> playlists = data.playlists;
             final int length = playlists.length;
             return data.finishedLoading

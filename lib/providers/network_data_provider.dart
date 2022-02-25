@@ -247,7 +247,6 @@ class NetworkDataProvider with ChangeNotifier {
         .get(Uri.parse("$apiBaseUrl/podcasts/${episode.id}/recommendations"), headers: _requestHeader)
         .then((response) {
       if (response.wasSuccessful) {
-        print(response.body);
         jsonDecode(response.body)["recommendations"].forEach(
           (episodeJson) => episode.addRecommendation(
             _createPodcastEpisode(episodeJson),

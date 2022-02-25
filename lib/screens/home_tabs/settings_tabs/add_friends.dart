@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:podcasts_app/components/value_listanable_builder_2.dart';
+import 'package:podcasts_app/components/value_listenable_builder_2.dart';
 import 'package:podcasts_app/models/app_user.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/users_provider.dart';

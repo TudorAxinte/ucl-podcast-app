@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 extension DateExtension on DateTime {
   String get formattedString {
     final day = this.day;
@@ -30,6 +32,10 @@ extension DateExtension on DateTime {
       default:
         return "";
     }
+  }
+
+  DateTime fromTimeOfDay(TimeOfDay time) {
+    return DateTime(year, month, day, time.hour, time.minute);
   }
 }
 
