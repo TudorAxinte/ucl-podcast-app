@@ -1,15 +1,22 @@
 class WatchHistoryEntry {
   final String podcastId;
   final String episodeId;
-  final Duration duration;
+  final String description;
+  final int lengthInSeconds;
+  final int watchedSeconds;
   final DateTime eventDate;
 
-  WatchHistoryEntry._(this.podcastId, this.episodeId, this.duration, this.eventDate);
+  double get watchedPercentage => watchedSeconds / lengthInSeconds * 100;
+
+  WatchHistoryEntry._(
+      this.podcastId, this.episodeId, this.description, this.lengthInSeconds, this.watchedSeconds, this.eventDate);
 
   factory WatchHistoryEntry.fromJson(Map data) => WatchHistoryEntry._(
         data["podcast_id"],
         data["episode_id"],
-        Duration(seconds: data["watched_seconds"]),
+        data["description"],
+        data["length_seconds"],
+        data["watched_seconds"],
         DateTime.fromMillisecondsSinceEpoch(data["date"]),
       );
 }

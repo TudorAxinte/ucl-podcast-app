@@ -19,7 +19,6 @@ class _SplashScreenState extends State<SplashScreen> with AfterLayoutMixin<Splas
 
   void _routeUser() async {
     final _auth = Provider.of<AuthProvider>(context, listen: false);
-
     await _auth.init();
 
     Navigator.of(context).pushReplacement(

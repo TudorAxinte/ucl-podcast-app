@@ -36,9 +36,11 @@ class PodcastApp extends StatelessWidget {
       providers: [
         Provider<AnalyticsProvider>(create: (_) => AnalyticsProvider()),
         ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
-        ChangeNotifierProvider<NetworkDataProvider>(create: (_) => NetworkDataProvider()..init(_config)),
+        ChangeNotifierProvider<NetworkDataProvider>(
+            create: (_) => NetworkDataProvider()..init(_config.getString("API_KEY"))),
         ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(_auth, _storage)),
-        ChangeNotifierProvider<AiProvider>(create: (_) => AiProvider(_auth, _storage)..init()),
+        ChangeNotifierProvider<AiProvider>(
+            create: (_) => AiProvider(_auth, _storage)..init(_config.getString("WATSON_API_KEY"))),
         ChangeNotifierProxyProvider<AuthProvider, UsersProvider>(
           create: (_) => UsersProvider(_storage),
           update: (context, auth, users) => users!
@@ -46,17 +48,17 @@ class PodcastApp extends StatelessWidget {
             ..init(),
         ),
       ],
-      child:MaterialApp(
-          theme: ThemeData(
-            primaryColor: Colors.blue,
-            accentColor: Color(0xffF0074D),
-            backgroundColor: Color(0xffEEEEEE).withBlue(255),
-            fontFamily: "Nunito",
-          ),
-          builder: BotToastInit(),
-          debugShowCheckedModeBanner: false,
-          home: SplashScreen(),
+      child: MaterialApp(
+        theme: ThemeData(
+          primaryColor: Colors.blue,
+          accentColor: Color(0xffF0074D),
+          backgroundColor: Color(0xffEEEEEE).withBlue(255),
+          fontFamily: "Nunito",
         ),
+        builder: BotToastInit(),
+        debugShowCheckedModeBanner: false,
+        home: SplashScreen(),
+      ),
     );
   }
 }
@@ -70,4 +72,5 @@ Future<void> initializeDependencies() async {
   );
   await Hive.initFlutter();
   await Firebase.initializeApp();
+  await FirebaseRemoteConfig.instance.fetchAndActivate();
 }

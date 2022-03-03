@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 class LibraryPage extends StatelessWidget {
   final Random _rand = Random();
   final ValueNotifier<bool> _loading = ValueNotifier(false);
+  final ValueNotifier<bool> _fetchingRecommendations = ValueNotifier(false);
 
   Future<void> fetchMorePlaylists(NetworkDataProvider data, int page) async {
     _loading.value = true;
@@ -21,68 +22,83 @@ class LibraryPage extends StatelessWidget {
     _loading.value = false;
   }
 
+  Future<void> fetchRecommendations(AiProvider aiProvider) async {
+    _fetchingRecommendations.value = true;
+    await aiProvider.fetchWatchHistory();
+    await aiProvider.generateWatsonNluRecommendations();
+    _fetchingRecommendations.value = false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final hasNotch = MediaQuery.of(context).viewPadding.top > 20;
-    return Container(
-      color: Theme.of(context).primaryColor,
-      child: Transform(
-        // Show the right color behind the bottom navigation bar
-        transform: Matrix4.translationValues(0, 20, 0),
-        child: Container(
-          color: Theme.of(context).primaryColor,
-          child: Consumer2<NetworkDataProvider, AiProvider>(builder: (_, data, ai, __) {
-            final List<CuratedPlaylist> playlists = data.playlists;
-            final int length = playlists.length;
-            return data.finishedLoading
-                ? ListView.builder(
-                    shrinkWrap: true,
-                    itemCount: length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == length)
-                        return Container(
-                          height: 100,
-                          width: 100,
-                          alignment: Alignment.center,
-                          padding: const EdgeInsets.only(bottom: 40, top: 20),
-                          child: ValueListenableBuilder<bool>(
-                            valueListenable: _loading,
-                            builder: (_, loading, __) => loading
-                                ? FittedBox(
-                                    child: SizedProgressCircular(
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                : MaterialButton(
-                                    onPressed: () => fetchMorePlaylists(data, length ~/ 10 + 1),
-                                    color: Colors.white,
-                                    minWidth: 200,
-                                    child: Text(
-                                      "Load more",
-                                      style: TextStyle(
-                                        color: Theme.of(context).primaryColor,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        );
-                      final CuratedPlaylist playlist = playlists[index];
-                      return _section(context, playlist, isDark: index % 2 == 0);
-                    })
-                : SingleChildScrollView(
-                    child: Column(children: [
-                      SizedBox(height: hasNotch ? 40 : 20),
-                      _loadingSection(context, true),
-                      _loadingSection(context, false),
-                      _loadingSection(context, true),
-                    ]),
-                  );
-          }),
+    fetchRecommendations(Provider.of<AiProvider>(context, listen: false));
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          elevation: 0,
+          backgroundColor: Colors.lightBlueAccent.withOpacity(0.95),
+          toolbarHeight: 50,
+          centerTitle: true,
+          title: const TabBar(
+            labelStyle: TextStyle(fontSize: 18),
+            indicatorColor: Colors.white,
+            tabs: [
+              Tab(text: "Featured"),
+              Tab(text: "Recommended"),
+            ],
+          ),
+        ),
+        body: Transform(
+          transform: Matrix4.translationValues(0, 15, 0),
+          child: Container(
+            color: Theme.of(context).primaryColor,
+            child: TabBarView(
+              children: [
+                featuredPlaylists(context),
+                recommendedPlaylists(context),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
+
+  Widget recommendedPlaylists(context) => ValueListenableBuilder<bool>(
+        valueListenable: _fetchingRecommendations,
+        builder: (_, fetching, __) => Consumer<AiProvider>(
+          builder: (_, aiProvider, __) {
+            final List<CuratedPlaylist> playlists = aiProvider.playlists;
+            final int length = playlists.length;
+            return aiProvider.finishedLoading && fetching == false
+                ? ListView.builder(
+                    itemCount: length,
+                    itemBuilder: (context, index) {
+                      final CuratedPlaylist playlist = playlists[index];
+                      return _section(context, playlist, isDark: index % 2 == 0);
+                    })
+                : loadingPlaylistsPlaceholder(context);
+          },
+        ),
+      );
+
+  Widget featuredPlaylists(context) => Consumer<NetworkDataProvider>(
+        builder: (_, data, __) {
+          final List<CuratedPlaylist> playlists = data.playlists;
+          final int length = playlists.length;
+          return data.finishedLoading
+              ? ListView.builder(
+                  itemCount: length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == length) return _loadMoreSection(data, length, context);
+                    final CuratedPlaylist playlist = playlists[index];
+                    return _section(context, playlist, isDark: index % 2 == 0);
+                  })
+              : loadingPlaylistsPlaceholder(context);
+        },
+      );
 
   Widget _section(context, CuratedPlaylist playlist, {isDark = false}) {
     return Container(
@@ -132,49 +148,76 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
+  Widget _loadMoreSection(data, length, context) => Container(
+        height: 100,
+        width: 100,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.only(bottom: 40, top: 20),
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _loading,
+          builder: (_, loading, __) => loading
+              ? FittedBox(
+                  child: SizedProgressCircular(
+                    color: Colors.white,
+                  ),
+                )
+              : MaterialButton(
+                  onPressed: () => fetchMorePlaylists(data, length ~/ 10 + 1),
+                  color: Colors.white,
+                  minWidth: 200,
+                  child: Text(
+                    "Load more",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+        ),
+      );
+
+  Widget loadingPlaylistsPlaceholder(context) => SingleChildScrollView(
+        child: Column(children: [
+          SizedBox(height: MediaQuery.of(context).viewPadding.top > 20 ? 60 : 30),
+          _loadingSection(context, true),
+          _loadingSection(context, false),
+          _loadingSection(context, true),
+        ]),
+      );
+
   Widget _loadingSection(context, isDark) {
     return Container(
-      padding: const EdgeInsets.only(top: 20, bottom: 50),
+      height: 280,
+      padding: const EdgeInsets.symmetric(vertical: 50),
+      alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isDark ? Theme.of(context!).primaryColor : Theme.of(context!).backgroundColor,
+        color: isDark ? Theme.of(context).primaryColor : Theme.of(context!).backgroundColor,
       ),
       child: Column(
         children: [
-          _header("Loading...", isDark: isDark),
           Container(
             child: CarouselSlider(
-                items: Iterable.generate(
-                  3,
-                  (e) => InkWell(
-                    child: CuratedPodcastCard(
-                      Podcast.dummy(),
-                      isDark: isDark,
-                      loading: true,
-                    ),
-                    onTap: () {
-                      showCupertinoModalBottomSheet(
-                        barrierColor: Colors.black,
-                        topRadius: Radius.circular(20),
-                        context: context,
-                        builder: (_) => PodcastViewerPage(
-                          Podcast.dummy(),
-                        ),
-                      );
-                    },
-                  ),
-                ).toList(),
-                options: CarouselOptions(
-                  aspectRatio: 2.2,
-                  viewportFraction: 0.4,
-                  enableInfiniteScroll: true,
-                  reverse: false,
-                  autoPlay: true,
-                  autoPlayInterval: Duration(milliseconds: 1200 + _rand.nextInt(100) * 50),
-                  autoPlayAnimationDuration: Duration(milliseconds: 800),
-                  autoPlayCurve: Curves.fastOutSlowIn,
-                  enlargeCenterPage: true,
-                  scrollDirection: Axis.horizontal,
-                )),
+              items: Iterable.generate(
+                3,
+                (e) => CuratedPodcastCard(
+                  Podcast.dummy(),
+                  isDark: isDark,
+                  loading: true,
+                ),
+              ).toList(),
+              options: CarouselOptions(
+                aspectRatio: 2.2,
+                viewportFraction: 0.4,
+                enableInfiniteScroll: true,
+                reverse: false,
+                autoPlay: true,
+                autoPlayInterval: Duration(milliseconds: 1200 + _rand.nextInt(100) * 50),
+                autoPlayAnimationDuration: Duration(milliseconds: 800),
+                autoPlayCurve: Curves.fastOutSlowIn,
+                enlargeCenterPage: true,
+                scrollDirection: Axis.horizontal,
+              ),
+            ),
           ),
         ],
       ),

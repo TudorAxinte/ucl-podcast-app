@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
-import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
@@ -14,16 +13,13 @@ extension Ex on http.Response {
 
 class NetworkDataProvider with ChangeNotifier {
   NetworkDataProvider._internal();
-
   static final NetworkDataProvider _singleton = NetworkDataProvider._internal();
-
   factory NetworkDataProvider() {
     return _singleton;
   }
 
   final String apiBaseUrl = "https://listen-api.listennotes.com/api/v2";
 
-  late final FirebaseRemoteConfig _config;
   late final Map<String, String> _requestHeader;
   final Map<int, String> _genres = HashMap();
   final Map<String, String> _regions = HashMap();
@@ -53,13 +49,10 @@ class NetworkDataProvider with ChangeNotifier {
 
   bool get finishedLoading => _finishedLoading;
 
-  Future<void> init(FirebaseRemoteConfig config) async {
-    _config = config;
-    await _config.fetchAndActivate();
-
+  Future<void> init(String apiKey) async {
     _requestHeader = {
       "App": "Podcasting Together",
-      "X-ListenAPI-Key": _config.getString("API_KEY"),
+      "X-ListenAPI-Key": apiKey,
     };
 
     await Future.wait([

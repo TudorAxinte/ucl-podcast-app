@@ -23,9 +23,10 @@ class CuratedPodcastCard extends StatelessWidget {
               highlightColor: Theme.of(context).primaryColor,
               direction: ShimmerDirection.ltr,
               child: Container(
-                height: 170,
+                height: 200,
                 decoration: BoxDecoration(
                   color: Colors.black,
+                  borderRadius: BorderRadius.all(Radius.circular(20))
                 ),
               ),
             ))
