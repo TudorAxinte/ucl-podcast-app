@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
+import 'package:podcasts_app/util/extensions.dart';
 import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
@@ -13,7 +14,9 @@ extension Ex on http.Response {
 
 class NetworkDataProvider with ChangeNotifier {
   NetworkDataProvider._internal();
+
   static final NetworkDataProvider _singleton = NetworkDataProvider._internal();
+
   factory NetworkDataProvider() {
     return _singleton;
   }
@@ -72,7 +75,7 @@ class NetworkDataProvider with ChangeNotifier {
     await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: _requestHeader).then(
       (response) {
         if (response.wasSuccessful) {
-          jsonDecode(response.body)["results"].forEach(
+          jsonDecode(response.body)["results"].map(
             (resultJson) => _processSearchResult(resultJson),
           );
         } else {
@@ -81,6 +84,24 @@ class NetworkDataProvider with ChangeNotifier {
       },
     );
     notifyListeners();
+  }
+
+  Future<CuratedPlaylist> generatePlaylistFromKeyword(String keyword) async {
+    final apiResponse = await http.get(
+      Uri.parse("$apiBaseUrl/search?q=$keyword&&type=podcast"),
+      headers: _requestHeader,
+    );
+
+    if (!apiResponse.wasSuccessful) throw ("Podcast API error (code:${apiResponse.statusCode}): ${apiResponse.body}");
+
+    return CuratedPlaylist.fromEpisodes(
+      keyword.formatAsTitle,
+      List<Podcast>.from(
+        jsonDecode(apiResponse.body)["results"].map(
+          (resultJson) => _createPodcast(resultJson),
+        ),
+      ),
+    );
   }
 
   void _processSearchResult(Map resultJson) {

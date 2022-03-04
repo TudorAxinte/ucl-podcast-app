@@ -40,6 +40,22 @@ extension DateExtension on DateTime {
 }
 
 extension StringExtension on String {
+  String get preparedForNlp {
+    return this
+        .replaceAll(RegExp(r"(http|ftp|https)://([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])?"), "")
+        .split(".")
+        .take(3)
+        .toString()
+        .replaceAll(",", ".")
+        .replaceAll(RegExp(' +'), ' ')
+        .replaceAll(
+            ""
+                ")(",
+            ".")
+        .replaceAll("(", "")
+        .replaceAll(")", ".");
+  }
+
   String capitalize() {
     return this[0].toUpperCase() + this.substring(1).toLowerCase();
   }

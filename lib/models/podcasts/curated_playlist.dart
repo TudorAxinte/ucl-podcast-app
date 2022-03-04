@@ -7,11 +7,11 @@ import 'package:podcasts_app/util/extensions.dart';
 class CuratedPlaylist implements SearchResult {
   final String id;
   final String title;
-  final String description;
-  final String sourceUrl;
+  final String? description;
+  final String? sourceUrl;
   final Set<Podcast> _podcasts = {};
 
-  CuratedPlaylist._(this.id, this.title, this.description, this.sourceUrl);
+  CuratedPlaylist._(this.id, this.title, {this.description, this.sourceUrl});
 
   List<Podcast> get podcasts => List.from(_podcasts);
 
@@ -19,15 +19,21 @@ class CuratedPlaylist implements SearchResult {
 
   void clearPodcasts() => _podcasts.clear();
 
+  factory CuratedPlaylist.fromEpisodes(String title, List<Podcast> podcasts) {
+    final CuratedPlaylist playlist = CuratedPlaylist._(title.hashCode.toString(), title);
+    podcasts.forEach((podcast) => playlist.addPodcast(podcast));
+    return playlist;
+  }
+
   factory CuratedPlaylist.fromJson(Map json) => CuratedPlaylist._(
         json["id"],
         json["title"] ?? json["title_original"],
-        json["description"] ?? json["description_original"],
-        json["source_domain"],
+        description: json["description"] ?? json["description_original"],
+        sourceUrl: json["source_domain"],
       );
 
   @override
-  String get author => sourceUrl.replaceAll("www.", "").capitalize();
+  String get author => sourceUrl?.replaceAll("www.", "").capitalize() ?? "";
 
   @override
   String get thumbnailUrl => _podcasts.first.thumbnailUrl;

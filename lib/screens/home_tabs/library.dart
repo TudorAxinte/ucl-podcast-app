@@ -72,7 +72,7 @@ class LibraryPage extends StatelessWidget {
           builder: (_, aiProvider, __) {
             final List<CuratedPlaylist> playlists = aiProvider.playlists;
             final int length = playlists.length;
-            return aiProvider.finishedLoading && fetching == false
+            return fetching == false
                 ? ListView.builder(
                     itemCount: length,
                     itemBuilder: (context, index) {
