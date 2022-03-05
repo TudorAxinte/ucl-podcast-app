@@ -22,7 +22,7 @@ class UsersProvider with ChangeNotifier {
   final Set<AppUser> _users = {};
   final Map<String, AppUser> _usersMap = {};
 
-  void init() async {
+  Future<void> init() async {
     await fetchUsers();
     _finishedLoading = true;
     notifyListeners();
@@ -33,6 +33,9 @@ class UsersProvider with ChangeNotifier {
   bool get loadedFriends => _loadedFriends;
 
   List<AppUser> get users => List.from(_users);
+
+  List<AppUser> get currentUserFriends =>
+      loadedFriends && currentUser != null ? List<AppUser>.from(currentUser!.friendsIds.map((e) => getById(e))) : [];
 
   AppUser? get currentUser => _auth.currentUser;
 
@@ -53,17 +56,19 @@ class UsersProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchFriends(AppUser user) async {
-    final userRef = _storage.collection("users").doc(user.id);
+  Future<void> fetchFriends({AppUser? user}) async {
+    if (user == null) user = _auth.currentUser;
+    final userRef = _storage.collection("users").doc(user!.id);
     await userRef.collection("friends").get().then((value) {
-      value.docs.forEach((friend) => user.addFriend(friend.id));
+      value.docs.forEach((friend) => user!.addFriend(friend.id));
     });
     await userRef.collection("friend_requests").get().then((value) {
-      value.docs.forEach((request) => user.addFriendReq(request.id));
+      value.docs.forEach((request) => user!.addFriendReq(request.id));
     });
     await userRef.collection("friend_requests_sent").get().then((value) {
-      value.docs.forEach((request) => user.addFriendReqSent(request.id));
+      value.docs.forEach((request) => user!.addFriendReqSent(request.id));
     });
+
     _loadedFriends = true;
     notifyListeners();
   }

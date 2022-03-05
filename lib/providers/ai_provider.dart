@@ -1,5 +1,6 @@
 import 'dart:collection';
 import 'dart:convert';
+import 'package:podcasts_app/models/app_user.dart';
 import 'package:podcasts_app/util/extensions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -30,19 +31,13 @@ class AiProvider with ChangeNotifier {
   late final Map<String, String> _requestHeader;
   final String watsonUrl = "https://api.eu-gb.natural-language-understanding.watson.cloud.ibm"
       ".com/instances/dc5e8eb4-6f5d-4cfd-ac8b-c5ba2d40f3f7";
-
   final NetworkDataProvider data = NetworkDataProvider();
   final Set<CuratedPlaylist> _recommendedPlaylists = HashSet<CuratedPlaylist>();
-  final Set<WatchHistoryEntry> _watchHistory = SplayTreeSet<WatchHistoryEntry>(
-    (b, a) => a.eventDate.compareTo(b.eventDate),
-  );
 
   List<CuratedPlaylist> get playlists => List.from(_recommendedPlaylists);
 
   CollectionReference get _historyRef =>
       _storage.collection("users").doc(_auth.currentUser!.uid).collection("watch_history");
-
-  List<WatchHistoryEntry> get watchHistory => List.from(_watchHistory);
 
   Future<void> init(String watsonApiKey) async {
     _requestHeader = {
@@ -51,24 +46,36 @@ class AiProvider with ChangeNotifier {
     };
   }
 
-  Future<void> fetchWatchHistory() async {
-    _watchHistory.clear();
-    await _historyRef.get().then((value) => {
+  Future<String> generateWatsonNluInput(List<AppUser> userPool) async {
+    final Set<WatchHistoryEntry> watchHistory = SplayTreeSet<WatchHistoryEntry>(
+      (b, a) => a.eventDate.compareTo(b.eventDate),
+    );
+    Future<void> updateWatchHistory(AppUser user) async => watchHistory.addAll(await fetchWatchHistory(user));
+    await Future.wait(userPool.map((user) => updateWatchHistory(user)));
+    return watchHistory.map((entry) => entrySummary(entry)).reduce((a, b) => a + b);
+  }
+
+  Future<Set<WatchHistoryEntry>> fetchWatchHistory(AppUser user) async {
+    final ref = _storage.collection("users").doc(user.id).collection("watch_history");
+    final Set<WatchHistoryEntry> _watchHistory = SplayTreeSet<WatchHistoryEntry>(
+      (b, a) => a.eventDate.compareTo(b.eventDate),
+    );
+    await ref.get().then((value) => {
           value.docs.forEach(
             (element) => _watchHistory.add(
               WatchHistoryEntry.fromJson(
-                element.data() as Map,
+                element.data(),
               ),
             ),
           )
         });
-    notifyListeners();
+    return _watchHistory;
   }
 
-  Future<void> generateWatsonNluRecommendations() async {
+  Future<void> generateWatsonNluRecommendations(String input) async {
     _recommendedPlaylists.clear();
     final data = {
-      "text": mergedWatchHistory,
+      "text": input,
       "features": {
         "categories": {"limit": 5},
         "summarization": {
@@ -90,7 +97,10 @@ class AiProvider with ChangeNotifier {
         ),
       );
 
-      // Not sending concurrent requests as the API limit is 2/s
+      /*
+       Sending requests one at a time as the Podcasts API free tier plan
+       limits requests to 2/sec.
+      */
       await Future.forEach(
         watsonNlpResults,
         (result) => generateRecommendationFromKeyword(result as String),
@@ -121,16 +131,7 @@ class AiProvider with ChangeNotifier {
     };
 
     await _historyRef.add(json);
-    _watchHistory.add(WatchHistoryEntry.fromJson(json));
     notifyListeners();
-  }
-
-  String get mergedWatchHistory {
-    String mergedWatchHistory = "";
-    _watchHistory.forEach((entry) {
-      if (entry.watchedPercentage > -1) mergedWatchHistory += entrySummary(entry);
-    });
-    return mergedWatchHistory;
   }
 
   String entrySummary(WatchHistoryEntry entry) => entry.description.preparedForNlp;

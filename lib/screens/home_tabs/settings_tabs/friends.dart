@@ -28,9 +28,7 @@ class FriendsState extends State<FriendsPage> {
     super.initState();
     auth = Provider.of<AuthProvider>(context, listen: false);
     users = Provider.of<UsersProvider>(context, listen: false);
-
-    currentUser = auth.currentUser!;
-    users.fetchFriends(currentUser).then((value) => loading.value = false);
+    users.fetchFriends().then((value) => loading.value = false);
   }
 
   @override
@@ -92,7 +90,6 @@ class FriendsState extends State<FriendsPage> {
                   : friendsList(
                       friends,
                       friendRequests,
-                      UniqueKey(),
                     ),
             )
           ],
@@ -101,16 +98,16 @@ class FriendsState extends State<FriendsPage> {
     );
   }
 
-  Widget friendsList(friends, friendRequests, key) {
-    if (currentUser.friendRequestsSentIds.length + friends.length == users.users.length) return invitedEveryoneWidget;
+  Widget friendsList(friends, friendRequests) {
     if (currentUser.friendsIds.isEmpty && friendRequests.isEmpty) return noFriendsWidget;
 
     return ListView(
-      key: key,
+      key: UniqueKey(),
       shrinkWrap: true,
       children: [
-        ...friendRequests.map((id) =>
-            users.getById(id) != null ? {friendCard(context, users.getById(id)!, isRequest: true)} : SizedBox()),
+        if (currentUser.friendRequestsSentIds.length + friends.length == users.users.length) invitedEveryoneWidget,
+        ...friendRequests.map(
+            (id) => users.getById(id) != null ? friendCard(context, users.getById(id)!, isRequest: true) : SizedBox()),
         ...friends.map((id) => users.getById(id) != null ? friendCard(context, users.getById(id)!) : SizedBox()),
       ],
     );
@@ -296,18 +293,6 @@ class FriendsState extends State<FriendsPage> {
               color: Colors.black,
               fontSize: 17,
             ),
-          ),
-          TextButton(
-            child: Text(
-              'Invite new users',
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).primaryColor,
-              ),
-            ),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
           ),
         ],
       );

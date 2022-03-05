@@ -42,11 +42,7 @@ class PodcastApp extends StatelessWidget {
         ChangeNotifierProvider<AiProvider>(
             create: (_) => AiProvider(_auth, _storage)..init(_config.getString("WATSON_API_KEY"))),
         ChangeNotifierProxyProvider<AuthProvider, UsersProvider>(
-          create: (_) => UsersProvider(_storage),
-          update: (context, auth, users) => users!
-            ..updateAuth(auth)
-            ..init(),
-        ),
+            create: (_) => UsersProvider(_storage), update: (context, auth, users) => users!..updateAuth(auth)),
       ],
       child: MaterialApp(
         theme: ThemeData(

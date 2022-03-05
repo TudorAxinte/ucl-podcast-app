@@ -64,9 +64,10 @@ class NetworkDataProvider with ChangeNotifier {
       fetchGeneres(),
       fetchLanguages(),
       fetchRegions(),
-    ]);
+    ]).then((value) {
+      _finishedLoading = true;
+    });
 
-    _finishedLoading = true;
     notifyListeners();
   }
 
@@ -146,7 +147,7 @@ class NetworkDataProvider with ChangeNotifier {
           },
         );
       } else {
-        print("Fetching podcasts failed (${response.statusCode})");
+        throw("Fetching podcasts failed (${response.statusCode})");
       }
     });
     notifyListeners();
@@ -165,7 +166,7 @@ class NetworkDataProvider with ChangeNotifier {
           (playlistJson) => _createCuratedPlaylist(playlistJson),
         );
       } else {
-        print("Fetching playlists failed (${response.statusCode})");
+        throw("Fetching playlists failed (${response.statusCode})");
       }
     });
     notifyListeners();

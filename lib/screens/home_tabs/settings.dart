@@ -1,3 +1,4 @@
+import 'package:bot_toast/bot_toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
@@ -42,6 +43,7 @@ class SettingsPage extends StatelessWidget {
                           Navigator.of(context).push(LoginPage.route());
                           home.reset();
                         }).onError((error, stackTrace) {
+                          BotToast.showText(text: error.toString(), duration: Duration(seconds: 3));
                           _loading.value = false;
                         });
                       },
@@ -98,7 +100,7 @@ class SettingsPage extends StatelessWidget {
                       child: ClipOval(
                         child: CachedNetworkImage(
                           fit: BoxFit.cover,
-                          imageUrl: auth.currentUser!.photoUrl,
+                          imageUrl: auth.currentUser?.photoUrl ?? "",
                           placeholder: (context, url) => Center(child: StyledProgressBar()),
                           errorWidget: (context, url, error) => Padding(
                             padding: const EdgeInsets.all(25),

@@ -39,8 +39,7 @@ class AddFriendsState extends State<AddFriends> {
         loading: _loading,
         child: Consumer<UsersProvider>(
           builder: (context, users, _) {
-            final List appUsers = users.users;
-            appUsers.remove(users.getById(_currentUser!.id));
+
 
             return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
               Container(
@@ -144,6 +143,9 @@ class AddFriendsState extends State<AddFriends> {
                   _selected,
                   _search,
                   builder: (context, loading, searched, _) {
+                    final List appUsers = users.users;
+                    appUsers.remove(users.getById(_currentUser!.id));
+
                     appUsers.retainWhere((user) => user.username.toLowerCase().contains(searched.toLowerCase()));
                     appUsers.removeWhere((user) => _currentUser!.friendsIds.contains(user.id));
                     appUsers.removeWhere((user) => _currentUser!.friendRequestsSentIds.contains(user.id));
@@ -161,7 +163,7 @@ class AddFriendsState extends State<AddFriends> {
                             ),
                           )
                         : ListView(
-                      padding: EdgeInsets.zero,
+                            padding: EdgeInsets.zero,
                             children: appUsers.map((user) => userCard(context, user)).toList(),
                           );
                   },
@@ -176,8 +178,9 @@ class AddFriendsState extends State<AddFriends> {
 
   Widget userCard(BuildContext context, AppUser user) => InkWell(
         onTap: () {
-          _selected.value.contains(user) ? _selected.value.remove(user) : _selected.value.add(user);
-          // _selected.notifyListeners();
+          List<AppUser> selectedUsers = List.from(_selected.value);
+          selectedUsers.contains(user) ? selectedUsers.remove(user) : selectedUsers.add(user);
+          _selected.value = selectedUsers;
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -201,19 +204,19 @@ class AddFriendsState extends State<AddFriends> {
                   ],
                 ),
                 child: ClipOval(
-                  child:CachedNetworkImage(
-                          fit: BoxFit.cover,
-                          imageUrl: user.photoUrl,
-                          placeholder: (context, url) => Center(child: StyledProgressBar()),
-                          errorWidget: (context, url, error) => Padding(
-                            padding: const EdgeInsets.all(5),
-                            child: Icon(
-                              Icons.image_not_supported,
-                              size: 25,
-                              color: Colors.black54,
-                            ),
-                          ),
-                        ),
+                  child: CachedNetworkImage(
+                    fit: BoxFit.cover,
+                    imageUrl: user.photoUrl,
+                    placeholder: (context, url) => Center(child: StyledProgressBar()),
+                    errorWidget: (context, url, error) => Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Icon(
+                        Icons.image_not_supported,
+                        size: 25,
+                        color: Colors.black54,
+                      ),
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 15),
