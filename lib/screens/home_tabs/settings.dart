@@ -11,6 +11,7 @@ import 'package:podcasts_app/util/image_picker.dart';
 import 'package:podcasts_app/util/loading.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -105,7 +106,7 @@ class SettingsPage extends StatelessWidget {
                           errorWidget: (context, url, error) => Padding(
                             padding: const EdgeInsets.all(25),
                             child: Icon(
-                              Icons.image_not_supported,
+                              Icons.person,
                               size: 50,
                               color: Colors.black54,
                             ),
@@ -115,14 +116,11 @@ class SettingsPage extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(
-                    height: 10,
+                    height: 15,
                   ),
                   Text(
                     auth.currentUser!.username,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: size.height * 0.03,
-                    ),
+                    style: TextStyle(color: Colors.black, fontSize: size.height * 0.03, height: 1),
                   ),
                   Text(
                     '${auth.currentUser!.accountAge} days old',
@@ -185,11 +183,16 @@ class SettingsPage extends StatelessWidget {
                       "Share the app",
                       size,
                       Icons.share,
-                      () => null,
+                      () => Share.share("Check out Podcasting Together! https://github.com/TudorAxinte/ucl-podcast-app"),
                       subtitle: "Podcast together with your friends",
                     ),
                     optionCard(
-                        context, "Contact us", size, Icons.email_outlined, () => launch("mailto:zcabtax@ucl.ac.uk"),
+                        context,
+                        "Contact us",
+                        size,
+                        Icons.email_outlined,
+                        () => launch("mailto:zcabtax@ucl.ac"
+                            ".uk"),
                         subtitle: "Get in touch"),
                   ],
                 ),

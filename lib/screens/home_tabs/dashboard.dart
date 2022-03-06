@@ -289,11 +289,11 @@ class DashboardPage extends StatelessWidget {
                         imageUrl: auth.currentUser!.photoUrl,
                         placeholder: (context, url) => Center(child: StyledProgressBar()),
                         errorWidget: (context, url, error) => Padding(
-                          padding: const EdgeInsets.all(25),
+                          padding: const EdgeInsets.all(5),
                           child: Icon(
-                            Icons.image_not_supported,
-                            size: 50,
-                            color: Colors.black54,
+                            Icons.person,
+                            size: 30,
+                            color: Theme.of(context).primaryColor,
                           ),
                         ),
                       ),

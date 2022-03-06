@@ -28,7 +28,14 @@ class FriendsState extends State<FriendsPage> {
     super.initState();
     auth = Provider.of<AuthProvider>(context, listen: false);
     users = Provider.of<UsersProvider>(context, listen: false);
-    users.fetchFriends().then((value) => loading.value = false);
+    currentUser = auth.currentUser!;
+    initFutures();
+  }
+
+  Future<void> initFutures() async {
+    if (!users.loaded) await users.init();
+    if (!users.loadedFriends) await users.fetchFriends();
+    loading.value = false;
   }
 
   @override

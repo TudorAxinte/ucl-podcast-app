@@ -147,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
           CustomTextField(
             _password,
             "Password",
+            isPassword: true,
             icon: Icons.lock,
           ),
           const SizedBox(height: 15),
@@ -176,7 +177,10 @@ class _LoginPageState extends State<LoginPage> {
                   }).onError((error, stackTrace) {
                     _loading.value = false;
                     print(error);
-                    BotToast.showSimpleNotification(title: error.toString(), duration: Duration(seconds: 4));
+                    BotToast.showSimpleNotification(
+                      title: "Authentication failed. Check credentials and try again.",
+                      duration: Duration(seconds: 4),
+                    );
                   });
                 }
               }),
@@ -295,15 +299,11 @@ class _LoginPageState extends State<LoginPage> {
               ),
               disabledColor: Colors.grey,
               onPressed: () {
-                if (_email.text.isEmpty ||
-                    _name.text.isEmpty ||
-                    _password.text.isEmpty) {
+                if (_email.text.isEmpty || _name.text.isEmpty || _password.text.isEmpty) {
                   BotToast.showSimpleNotification(title: "Please complete all fields.", duration: Duration(seconds: 3));
                 } else {
                   _loading.value = true;
-                  auth
-                      .register(_name.text, _email.text, _password.text)
-                      .then((value) {
+                  auth.register(_name.text, _email.text, _password.text).then((value) {
                     _loading.value = false;
                     Navigator.of(context).pushReplacement(HomePage.route());
                   }).onError((error, stackTrace) {
