@@ -76,7 +76,7 @@ class NetworkDataProvider with ChangeNotifier {
     await http.get(Uri.parse("$apiBaseUrl/search?q=$query"), headers: _requestHeader).then(
       (response) {
         if (response.wasSuccessful) {
-          jsonDecode(response.body)["results"].map(
+          jsonDecode(response.body)["results"].forEach(
             (resultJson) => _processSearchResult(resultJson),
           );
         } else {

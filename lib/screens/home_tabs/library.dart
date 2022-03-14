@@ -48,6 +48,7 @@ class LibraryPage extends StatelessWidget {
           elevation: 0,
           backgroundColor: Colors.lightBlueAccent.withOpacity(0.95),
           toolbarHeight: 50,
+          automaticallyImplyLeading: false,
           centerTitle: true,
           title: const TabBar(
             labelStyle: TextStyle(fontSize: 18),

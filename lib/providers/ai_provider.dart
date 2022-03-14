@@ -98,12 +98,17 @@ class AiProvider with ChangeNotifier {
       );
 
       /*
-       Sending requests one at a time as the Podcasts API free tier plan
-       limits requests to 2/sec.
+       Sending requests one at a time, delayed by 600ms, as the Podcasts API free tier plan
+       limits requests to 2/sec. Upon purchasing a paid plan, concurrent requests here would
+       cut recommendation loading times by ~90%.
       */
+      await Future.delayed(Duration(seconds: 2));
       await Future.forEach(
         watsonNlpResults,
-        (result) => generateRecommendationFromKeyword(result as String),
+        (result) => Future.delayed(
+          Duration(milliseconds: 1000),
+          () => generateRecommendationFromKeyword(result as String),
+        ),
       );
     } else {
       print("Watson error: ${watsonResponse.body}");
