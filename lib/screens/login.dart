@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:podcasts_app/components/templates/custom_textfield.dart';
+import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/util/loading.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
@@ -28,6 +29,7 @@ class _LoginPageState extends State<LoginPage> {
   final _name = TextEditingController();
   final _email = TextEditingController();
   final _password = TextEditingController();
+  final AnalyticsProvider analytics = AnalyticsProvider();
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +122,10 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ValueListenableBuilder<bool>(
                   valueListenable: _registering,
-                  builder: (context, registering, child) => registering ? _register(auth) : _login(auth),
+                  builder: (context, registering, child) {
+                    analytics.setCurrentScreen(registering ? "Register" : "Login");
+                    return registering ? _register(auth) : _login(auth);
+                  },
                 )
               ],
             ),
@@ -173,6 +178,7 @@ class _LoginPageState extends State<LoginPage> {
                   _loading.value = true;
                   auth.signIn(_email.text, _password.text).then((value) {
                     _loading.value = false;
+                    analytics.logLogin("Credential");
                     Navigator.of(context).pushReplacement(HomePage.route());
                   }).onError((error, stackTrace) {
                     _loading.value = false;
@@ -214,6 +220,7 @@ class _LoginPageState extends State<LoginPage> {
                 _loading.value = true;
                 auth.signInGoogle().then((value) {
                   _loading.value = false;
+                  analytics.logLogin("Google");
                   Navigator.of(context).pushReplacement(HomePage.route());
                 }).onError((error, stackTrace) {
                   _loading.value = false;
@@ -305,6 +312,7 @@ class _LoginPageState extends State<LoginPage> {
                   _loading.value = true;
                   auth.register(_name.text, _email.text, _password.text).then((value) {
                     _loading.value = false;
+                    analytics.logRegister("Credentials");
                     Navigator.of(context).pushReplacement(HomePage.route());
                   }).onError((error, stackTrace) {
                     _loading.value = false;

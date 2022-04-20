@@ -15,6 +15,7 @@ import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
 import 'package:podcasts_app/models/search_result.dart';
+import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
@@ -65,9 +66,11 @@ class DashboardPage extends StatelessWidget {
   final ValueNotifier<String?> _selectedRegion = ValueNotifier(null);
   final ValueNotifier<SearchFilter> _selectedFilter = ValueNotifier(SearchFilter.PODCASTS);
   final NetworkDataProvider data = NetworkDataProvider();
+  final AnalyticsProvider analytics = AnalyticsProvider();
 
   Future<void> _fetchSearchResults() async {
     final query = _searchQuery.value;
+    analytics.logSearch(query);
     EasyDebounce.debounce('search', Duration(milliseconds: 300), () async {
       _fetchingData.value = true;
       if (query.isNotEmpty) await data.fetchSearchResults(query, type: _selectedFilter.value.typeString);
@@ -215,6 +218,8 @@ class DashboardPage extends StatelessWidget {
       Colors.lightBlue,
       Colors.cyan
     ];
+
+    analytics.setCurrentScreen("Dashboard");
 
     return SingleChildScrollView(
       child: Column(
@@ -376,6 +381,8 @@ class DashboardPage extends StatelessWidget {
   }
 
   Widget _search(context) {
+    analytics.setCurrentScreen("Search");
+
     return Consumer<NetworkDataProvider>(
       builder: (_, data, __) {
         final List<SearchResult> searchPool = [...data.podcasts, ...data.podcastEpisodes, ...data.playlists];

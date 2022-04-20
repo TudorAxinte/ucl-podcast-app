@@ -6,6 +6,7 @@ import 'package:podcasts_app/components/cards/curated_podcast_card.dart';
 import 'package:podcasts_app/models/podcasts/curated_playlist.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/providers/ai_provider.dart';
+import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/providers/users_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/podcast_pages/podcast_viewer.dart';
@@ -40,6 +41,7 @@ class LibraryPage extends StatelessWidget {
     usersProvider = Provider.of<UsersProvider>(context, listen: false);
     aiProvider = Provider.of<AiProvider>(context, listen: false);
     fetchRecommendations();
+    AnalyticsProvider().setCurrentScreen("Library");
     return DefaultTabController(
       length: 2,
       child: Scaffold(

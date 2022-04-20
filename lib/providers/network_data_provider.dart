@@ -259,7 +259,7 @@ class NetworkDataProvider with ChangeNotifier {
   Future<void> fetchEpisodeRecommendations(PodcastEpisode episode) async {
     episode.clearRecommendations();
     await http
-        .get(Uri.parse("$apiBaseUrl/podcasts/${episode.id}/recommendations"), headers: _requestHeader)
+        .get(Uri.parse("$apiBaseUrl/episodes/${episode.id}/recommendations"), headers: _requestHeader)
         .then((response) {
       if (response.wasSuccessful) {
         jsonDecode(response.body)["recommendations"].forEach(

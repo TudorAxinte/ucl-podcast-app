@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/library.dart';
 import 'package:provider/provider.dart';
@@ -20,11 +19,13 @@ class HomePage extends StatefulWidget {
 class HomeState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Consumer2<HomeProvider, AnalyticsProvider>(
-      builder: (context, home, analytics, child) {
+    return Consumer<HomeProvider>(
+      builder: (context, home, child) {
         return Scaffold(
           backgroundColor:
-              home.page == LibraryPage() ? Theme.of(context).primaryColor : Theme.of(context).backgroundColor,
+              home.page == LibraryPage()
+                  ? Theme.of(context).primaryColor
+                  : Theme.of(context).backgroundColor,
           body: AnimatedSwitcher(
             duration: Duration(milliseconds: 300),
             child: home.page,
@@ -32,15 +33,15 @@ class HomeState extends State<HomePage> {
           bottomNavigationBar: Container(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+                topLeft: const Radius.circular(20),
+                topRight: const Radius.circular(20),
               ),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black12,
                   blurRadius: 20,
                   spreadRadius: 15,
-                  offset: Offset(0, 5),
+                  offset: const Offset(0, 5),
                 ),
               ],
               color: Colors.white,

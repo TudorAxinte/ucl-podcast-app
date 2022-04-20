@@ -211,33 +211,36 @@ class FriendsState extends State<FriendsPage> {
                   ),
                 ),
               ),
-            if (isRequest)
-              InkResponse(
-                onTap: () {
+            InkResponse(
+              onTap: () {
+                if (isRequest) {
                   users.declineFriendRequest(user);
-                },
-                child: Container(
-                  width: 50,
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.red,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black26,
-                        spreadRadius: 0.5,
-                        blurRadius: 2.0,
-                        offset: Offset(1.0, 1.0),
-                      )
-                    ],
-                  ),
-                  child: Icon(
-                    Icons.clear,
-                    size: 20,
-                    color: Colors.white,
-                  ),
+                } else {
+                  users.removeFriend(user);
+                }
+              },
+              child: Container(
+                width: 50,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.red,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black26,
+                      spreadRadius: 0.5,
+                      blurRadius: 2.0,
+                      offset: Offset(1.0, 1.0),
+                    )
+                  ],
+                ),
+                child: Icon(
+                  isRequest ? Icons.clear : Icons.delete,
+                  size: 20,
+                  color: Colors.white,
                 ),
               ),
+            ),
           ],
         ),
       );

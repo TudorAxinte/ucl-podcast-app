@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:podcasts_app/models/app_user.dart';
-
 import 'auth_provider.dart';
 
 class UsersProvider with ChangeNotifier {
@@ -18,7 +17,6 @@ class UsersProvider with ChangeNotifier {
   static late FirebaseFirestore _storage;
   static bool _finishedLoading = false;
   static bool _loadedFriends = false;
-
   final Set<AppUser> _users = {};
   final Map<String, AppUser> _usersMap = {};
 

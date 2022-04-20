@@ -1,6 +1,7 @@
 import 'package:bot_toast/bot_toast.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/auth_provider.dart';
 import 'package:podcasts_app/providers/home_provider.dart';
 import 'package:podcasts_app/screens/home_tabs/settings_tabs/account_settings.dart';
@@ -20,7 +21,7 @@ class SettingsPage extends StatelessWidget {
     final _loading = ValueNotifier(false);
     final hasNotch = MediaQuery.of(context).viewPadding.top > 20;
     final size = MediaQuery.of(context).size;
-
+    AnalyticsProvider().setCurrentScreen("Settings");
     return Consumer2<AuthProvider, HomeProvider>(builder: (context, auth, home, child) {
       return Loading(
         loading: _loading,

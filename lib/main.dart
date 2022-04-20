@@ -4,7 +4,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:just_audio_background/just_audio_background.dart';
 import 'package:podcasts_app/providers/ai_provider.dart';
 import 'package:podcasts_app/providers/analytics_provider.dart';
@@ -34,15 +33,31 @@ class PodcastApp extends StatelessWidget {
     ]);
     return MultiProvider(
       providers: [
-        Provider<AnalyticsProvider>(create: (_) => AnalyticsProvider()),
-        ChangeNotifierProvider<HomeProvider>(create: (_) => HomeProvider()),
+        Provider<AnalyticsProvider>(
+          create: (_) => AnalyticsProvider(),
+        ),
+        ChangeNotifierProvider<HomeProvider>(
+          create: (_) => HomeProvider(),
+        ),
         ChangeNotifierProvider<NetworkDataProvider>(
-            create: (_) => NetworkDataProvider()..init(_config.getString("API_KEY"))),
-        ChangeNotifierProvider<AuthProvider>(create: (_) => AuthProvider(_auth, _storage)),
+          create: (_) => NetworkDataProvider()
+            ..init(
+              _config.getString("API_KEY"),
+            ),
+        ),
+        ChangeNotifierProvider<AuthProvider>(
+          create: (_) => AuthProvider(_auth, _storage),
+        ),
         ChangeNotifierProvider<AiProvider>(
-            create: (_) => AiProvider(_auth, _storage)..init(_config.getString("WATSON_API_KEY"))),
+          create: (_) => AiProvider(_auth, _storage)
+            ..init(
+              _config.getString("WATSON_API_KEY"),
+            ),
+        ),
         ChangeNotifierProxyProvider<AuthProvider, UsersProvider>(
-            create: (_) => UsersProvider(_storage), update: (context, auth, users) => users!..updateAuth(auth)),
+          create: (_) => UsersProvider(_storage),
+          update: (context, auth, users) => users!..updateAuth(auth),
+        ),
       ],
       child: MaterialApp(
         theme: ThemeData(
@@ -66,7 +81,6 @@ Future<void> initializeDependencies() async {
     androidNotificationChannelName: 'Audio playback',
     androidNotificationOngoing: true,
   );
-  await Hive.initFlutter();
   await Firebase.initializeApp();
   await FirebaseRemoteConfig.instance.fetchAndActivate();
 }

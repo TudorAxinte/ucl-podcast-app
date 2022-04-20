@@ -5,6 +5,7 @@ import 'package:podcasts_app/components/cards/episode_card.dart';
 import 'package:podcasts_app/components/search_box.dart';
 import 'package:podcasts_app/models/podcasts/podcast.dart';
 import 'package:podcasts_app/models/podcasts/podcast_episode.dart';
+import 'package:podcasts_app/providers/analytics_provider.dart';
 import 'package:podcasts_app/providers/network_data_provider.dart';
 import 'package:podcasts_app/util/utils.dart';
 import 'package:provider/provider.dart';
@@ -27,6 +28,7 @@ class EpisodesViewer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    AnalyticsProvider().setCurrentScreen("Episodes Viewer");
     final hasNotch = MediaQuery.of(context).viewPadding.top > 20;
     return Scaffold(
       backgroundColor: Theme.of(context).backgroundColor,
@@ -108,6 +110,8 @@ class EpisodesViewer extends StatelessWidget {
                                     podcast.episodes.sublist(index + 1),
                                   ),
                                 ),
+                              ).then(
+                                (value) => AnalyticsProvider().setCurrentScreen("Episodes Viewer"),
                               );
                             },
                             child: EpisodeCard(

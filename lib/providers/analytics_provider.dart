@@ -15,16 +15,13 @@ class AnalyticsProvider {
 
   factory AnalyticsProvider() => _singleton;
 
-  void logAppOpen() {
-    analytics.logAppOpen();
-  }
 
   void setCurrentScreen(String screenName) {
     observer.analytics.setCurrentScreen(screenName: screenName, screenClassOverride: screenName);
   }
 
-  void logSearch(String query, String filter) {
-    analytics.logSearch(searchTerm: query, destination: filter);
+  void logSearch(String query) {
+    analytics.logSearch(searchTerm: query);
   }
 
   void logLogin(String method) {
@@ -37,5 +34,9 @@ class AnalyticsProvider {
 
   void logShare(String method, String content, String itemId) {
     analytics.logShare(contentType: Platform.operatingSystem, itemId: itemId, method: method);
+  }
+
+  void logEvent(String event) {
+    analytics.logEvent(name: event);
   }
 }

@@ -48,11 +48,11 @@ class AiProvider with ChangeNotifier {
 
   Future<String> generateWatsonNluInput(List<AppUser> userPool) async {
     final Set<WatchHistoryEntry> watchHistory = SplayTreeSet<WatchHistoryEntry>(
-      (b, a) => a.eventDate.compareTo(b.eventDate),
+      (b, a) => a.eventDate.compareTo(b.eventDate)
     );
-    Future<void> updateWatchHistory(AppUser user) async => watchHistory.addAll(await fetchWatchHistory(user));
-    await Future.wait(userPool.map((user) => updateWatchHistory(user)));
-    return watchHistory.map((entry) => entrySummary(entry)).reduce((a, b) => a + b);
+    Future<void> updateWatchHistory(AppUser user) async => watchHistory.addAll(await fetchWatchHistory(user),);
+    await Future.wait(userPool.map((user) => updateWatchHistory(user),),);
+    return watchHistory.map((entry) => entrySummary(entry),).reduce((a, b) => a + b);
   }
 
   Future<Set<WatchHistoryEntry>> fetchWatchHistory(AppUser user) async {
@@ -98,9 +98,9 @@ class AiProvider with ChangeNotifier {
       );
 
       /*
-       Sending requests one at a time, delayed by 600ms, as the Podcasts API free tier plan
+       Sending requests one at a time, delayed by 1s, as the Podcasts API free tier plan
        limits requests to 2/sec. Upon purchasing a paid plan, concurrent requests here would
-       cut recommendation loading times by ~90%.
+       cut recommendation loading times by ~80%.
       */
       await Future.delayed(Duration(seconds: 2));
       await Future.forEach(
@@ -140,17 +140,4 @@ class AiProvider with ChangeNotifier {
   }
 
   String entrySummary(WatchHistoryEntry entry) => entry.description.preparedForNlp;
-
-  void printLong(String? s) {
-    if (s == null || s.isEmpty) return;
-    const int n = 1000;
-    int startIndex = 0;
-    int endIndex = n;
-    while (startIndex < s.length) {
-      if (endIndex > s.length) endIndex = s.length;
-      print(s.substring(startIndex, endIndex));
-      startIndex += n;
-      endIndex = startIndex + n;
-    }
-  }
 }

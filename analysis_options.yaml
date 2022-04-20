@@ -5,12 +5,12 @@ analyzer:
     implicit-casts: true
     implicit-dynamic: true
   errors:
-    always_specify_types: ignore
+    always_specify_types: warning
     missing_required_param: warning
     missing_return: warning
     native_function_body_in_non_sdk_code: ignore
-    todo: ignore
-    import_internal_library: ignore
+    todo: warning
+    import_internal_library: warning
     unnecessary_null_comparison: warning
 
 linter:
