@@ -3,9 +3,13 @@
 
 ## About
 
-Podcasting Together is a mobile application that allows users to browse podcast episodes. The list of suggested shows is tailored to each
-specific user based on his/her preferences, friends’ interests, and watch history. The resulting recommendations are ***devised using the IBM Watson NLP***.
+Podcasting Together is an experiment. It started on the premise that building a content distribution platform is not about maximizing attention, but about making consumers happy and promoting content that sparkles memorable conversations. The result was this mobile application. A collection of pristine code illustrating the best Flutter development practices and creating a solid starting template for any future project facing a similar challenge. 
 
+The application uses a deep learning model to leverage the network as the ultimate indicator of who a user really is. Listeners build their interests by building their friend circle. The algorithm models the group’s watch behavior and curates the user experience accordingly. Personalized recommendations are given from a database of over 3,000,000 podcasts.
+
+Proposed and supervised by IBM, the project implements all functionalities required to match its commercial competitors. Code is clean and expressive of both respect and deep care towards the professional Flutter programming paradigms. The result serves as an example of mobile excellence, available open-source to facilitate the birth of more Flutter creations just like it. Initial client requirements were over-achieved and expectations were highly exceeded, as presented in the feedback section.
+
+https://liveuclac-my.sharepoint.com/:v:/g/personal/zcabtax_ucl_ac_uk/EU3K4_8OXt9GlSEdJiYA_9IBrWgsS9apsCrHKFknVE7ENA?e=Jjer8o
 
 ## Licence
 
