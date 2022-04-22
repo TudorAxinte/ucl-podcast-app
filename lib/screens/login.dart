@@ -287,6 +287,7 @@ class _LoginPageState extends State<LoginPage> {
           CustomTextField(
             _password,
             "Password",
+            isPassword: true,
             icon: Icons.lock,
           ),
           const SizedBox(height: 15),

@@ -22,7 +22,7 @@ class AuthProvider with ChangeNotifier {
       isUserLoggedIn ? _storage.collection("users").doc(_auth.currentUser!.uid)
           : null;
 
-  bool get isUserLoggedIn => _currentUser != null;
+  bool get isUserLoggedIn => _auth.currentUser != null;
 
 
   Future<void> init({AppUser? user}) async {

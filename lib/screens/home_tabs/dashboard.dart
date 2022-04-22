@@ -241,7 +241,7 @@ class DashboardPage extends StatelessWidget {
                       FadeAnimation(
                         2,
                         Text(
-                          "Hi ${auth.currentUser!.username}, let's",
+                          "Hi ${auth.currentUser?.username ?? "there"}, let's",
                           style: TextStyle(
                             color: Colors.black38,
                             fontSize: 16,

@@ -4,13 +4,9 @@ class FaqPage extends StatelessWidget {
   final ValueNotifier<int> selected = ValueNotifier(-1);
 
   final Map<String, String> questions = {
-    "Question 1": "Answer 1",
-    "new text": "Answer 2",
-    "Question 3": "Answer 3",
-    "Question 4": "Answer 4",
-    "Question 5": "Answer 5",
-    "Question 6": "Answer 6",
-    "Question 7": "Answer 7",
+    "About": "The project's about section can be found online at https://github.com/TudorAxinte/ucl-podcast-app",
+    "Contact": "Tudor Axinte, tudor.axinte.19@ucl.ac.uk",
+    "Licence": "The project is free to use and modify."
   };
 
   @override

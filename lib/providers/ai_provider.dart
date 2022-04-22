@@ -47,12 +47,23 @@ class AiProvider with ChangeNotifier {
   }
 
   Future<String> generateWatsonNluInput(List<AppUser> userPool) async {
-    final Set<WatchHistoryEntry> watchHistory = SplayTreeSet<WatchHistoryEntry>(
-      (b, a) => a.eventDate.compareTo(b.eventDate)
+    final Set<WatchHistoryEntry> watchHistory =
+        SplayTreeSet<WatchHistoryEntry>((b, a) => a.eventDate.compareTo(b.eventDate));
+    Future<void> updateWatchHistory(AppUser user) async => watchHistory.addAll(
+          await fetchWatchHistory(user),
+        );
+    await Future.wait(
+      userPool.map(
+        (user) => updateWatchHistory(user),
+      ),
     );
-    Future<void> updateWatchHistory(AppUser user) async => watchHistory.addAll(await fetchWatchHistory(user),);
-    await Future.wait(userPool.map((user) => updateWatchHistory(user),),);
-    return watchHistory.map((entry) => entrySummary(entry),).reduce((a, b) => a + b);
+    return watchHistory.isEmpty
+        ? ""
+        : watchHistory
+            .map(
+              (entry) => entrySummary(entry),
+            )
+            .reduce((a, b) => a + b);
   }
 
   Future<Set<WatchHistoryEntry>> fetchWatchHistory(AppUser user) async {
@@ -73,6 +84,7 @@ class AiProvider with ChangeNotifier {
   }
 
   Future<void> generateWatsonNluRecommendations(String input) async {
+    if (input.isEmpty) return;
     _recommendedPlaylists.clear();
     final data = {
       "text": input,

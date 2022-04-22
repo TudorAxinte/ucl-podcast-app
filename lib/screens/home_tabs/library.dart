@@ -31,8 +31,7 @@ class LibraryPage extends StatelessWidget {
     if (!usersProvider.loaded) await usersProvider.init();
     if (!usersProvider.loadedFriends) await usersProvider.fetchFriends();
     await aiProvider.generateWatsonNluRecommendations(
-        await aiProvider.generateWatsonNluInput([usersProvider.currentUser!, ...usersProvider.currentUserFriends])
-    );
+        await aiProvider.generateWatsonNluInput([usersProvider.currentUser!, ...usersProvider.currentUserFriends]));
     _fetchingRecommendations.value = false;
   }
 
@@ -64,9 +63,7 @@ class LibraryPage extends StatelessWidget {
         body: Transform(
           transform: Matrix4.translationValues(0, 15, 0),
           child: Container(
-            color: Theme
-                .of(context)
-                .primaryColor,
+            color: Theme.of(context).primaryColor,
             child: TabBarView(
               children: [
                 featuredPlaylists(context),
@@ -79,39 +76,52 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
-  Widget recommendedPlaylists(context) =>
-      ValueListenableBuilder<bool>(
+  Widget recommendedPlaylists(context) => ValueListenableBuilder<bool>(
         valueListenable: _fetchingRecommendations,
-        builder: (_, fetching, __) =>
-            Consumer<AiProvider>(
-              builder: (_, aiProvider, __) {
-                final List<CuratedPlaylist> playlists = aiProvider.playlists;
-                final int length = playlists.length;
-                return fetching == false
-                    ? ListView.builder(
-                    itemCount: length,
-                    itemBuilder: (context, index) {
-                      final CuratedPlaylist playlist = playlists[index];
-                      return _section(context, playlist, isDark: index % 2 == 0);
-                    })
-                    : loadingPlaylistsPlaceholder(context);
-              },
-            ),
+        builder: (_, fetching, __) => Consumer<AiProvider>(
+          builder: (_, aiProvider, __) {
+            final List<CuratedPlaylist> playlists = aiProvider.playlists;
+            final int length = playlists.length;
+            return fetching == false
+                ? length == 0
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(20),
+                          child: Text(
+                            "We don't have enough data to make recommendations. Come back after listening to some "
+                            "podcasts or making some friends!",
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 20,
+                            ),
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        itemCount: length,
+                        itemBuilder: (context, index) {
+                          final CuratedPlaylist playlist = playlists[index];
+                          return _section(context, playlist, isDark: index % 2 == 0);
+                        })
+                : loadingPlaylistsPlaceholder(context);
+          },
+        ),
       );
 
-  Widget featuredPlaylists(context) =>
-      Consumer<NetworkDataProvider>(
+  Widget featuredPlaylists(context) => Consumer<NetworkDataProvider>(
         builder: (_, data, __) {
           final List<CuratedPlaylist> playlists = data.playlists;
           final int length = playlists.length;
+          print(length);
           return data.finishedLoading
               ? ListView.builder(
-              itemCount: length + 1,
-              itemBuilder: (context, index) {
-                if (index == length) return _loadMoreSection(data, length, context);
-                final CuratedPlaylist playlist = playlists[index];
-                return _section(context, playlist, isDark: index % 2 == 0);
-              })
+                  itemCount: length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == length) return _loadMoreSection(data, length, context);
+                    final CuratedPlaylist playlist = playlists[index];
+                    return _section(context, playlist, isDark: index % 2 == 0);
+                  })
               : loadingPlaylistsPlaceholder(context);
         },
       );
@@ -120,9 +130,7 @@ class LibraryPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.only(top: 20, bottom: 50),
       decoration: BoxDecoration(
-        color: isDark ? Colors.transparent : Theme
-            .of(context)
-            .backgroundColor,
+        color: isDark ? Colors.transparent : Theme.of(context).backgroundColor,
       ),
       child: Column(
         children: [
@@ -131,8 +139,7 @@ class LibraryPage extends StatelessWidget {
             child: CarouselSlider(
               items: playlist.podcasts
                   .map(
-                    (podcast) =>
-                    InkWell(
+                    (podcast) => InkWell(
                       child: CuratedPodcastCard(
                         podcast,
                         isDark: isDark,
@@ -146,7 +153,7 @@ class LibraryPage extends StatelessWidget {
                         );
                       },
                     ),
-              )
+                  )
                   .toList(),
               options: CarouselOptions(
                 aspectRatio: 2.2,
@@ -167,45 +174,37 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
-  Widget _loadMoreSection(data, length, context) =>
-      Container(
+  Widget _loadMoreSection(data, length, context) => Container(
         height: 100,
         width: 100,
         alignment: Alignment.center,
         padding: const EdgeInsets.only(bottom: 40, top: 20),
         child: ValueListenableBuilder<bool>(
           valueListenable: _loading,
-          builder: (_, loading, __) =>
-          loading
+          builder: (_, loading, __) => loading
               ? FittedBox(
-            child: SizedProgressCircular(
-              color: Colors.white,
-            ),
-          )
+                  child: SizedProgressCircular(
+                    color: Colors.white,
+                  ),
+                )
               : MaterialButton(
-            onPressed: () => fetchMorePlaylists(data, length ~/ 10 + 1),
-            color: Colors.white,
-            minWidth: 200,
-            child: Text(
-              "Load more",
-              style: TextStyle(
-                color: Theme
-                    .of(context)
-                    .primaryColor,
-                fontSize: 20,
-              ),
-            ),
-          ),
+                  onPressed: () => fetchMorePlaylists(data, length ~/ 10 + 1),
+                  color: Colors.white,
+                  minWidth: 200,
+                  child: Text(
+                    "Load more",
+                    style: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
         ),
       );
 
-  Widget loadingPlaylistsPlaceholder(context) =>
-      SingleChildScrollView(
+  Widget loadingPlaylistsPlaceholder(context) => SingleChildScrollView(
         child: Column(children: [
-          SizedBox(height: MediaQuery
-              .of(context)
-              .viewPadding
-              .top > 20 ? 60 : 30),
+          SizedBox(height: MediaQuery.of(context).viewPadding.top > 20 ? 60 : 30),
           _loadingSection(context, true),
           _loadingSection(context, false),
           _loadingSection(context, true),
@@ -218,11 +217,7 @@ class LibraryPage extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 50),
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: isDark ? Theme
-            .of(context)
-            .primaryColor : Theme
-            .of(context!)
-            .backgroundColor,
+        color: isDark ? Theme.of(context).primaryColor : Theme.of(context!).backgroundColor,
       ),
       child: Column(
         children: [
@@ -230,12 +225,11 @@ class LibraryPage extends StatelessWidget {
             child: CarouselSlider(
               items: Iterable.generate(
                 3,
-                    (e) =>
-                    CuratedPodcastCard(
-                      Podcast.dummy(),
-                      isDark: isDark,
-                      loading: true,
-                    ),
+                (e) => CuratedPodcastCard(
+                  Podcast.dummy(),
+                  isDark: isDark,
+                  loading: true,
+                ),
               ).toList(),
               options: CarouselOptions(
                 aspectRatio: 2.2,
@@ -256,8 +250,7 @@ class LibraryPage extends StatelessWidget {
     );
   }
 
-  Widget _header(String title, {isDark = false}) =>
-      Padding(
+  Widget _header(String title, {isDark = false}) => Padding(
         padding: EdgeInsets.only(left: 20, right: 20, bottom: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
